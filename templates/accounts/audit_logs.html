@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}System Security & Audit Trail{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Security & Audit Log Trail</h1>
+    <p class="page-subtitle">Immutable log records tracking administrative actions, user logins, and dataset imports</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>User Account</th>
+          <th>Action Type</th>
+          <th>Target Entity</th>
+          <th>Audit Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim);">
+            {{ log.timestamp|date:"Y-m-d H:i:s" }}
+          </td>
+          <td><strong style="color: #fff;">{{ log.user.username|default:"System Anonymous" }}</strong></td>
+          <td>
+            <span class="badge {% if 'Login' in log.action %}badge-info{% elif 'Import' in log.action %}badge-success{% else %}badge-secondary{% endif %}">
+              {{ log.action }}
+            </span>
+          </td>
+          <td>{{ log.target_model }} ({{ log.target_id|default:"-" }})</td>
+          <td style="color: var(--text-muted); font-size: 0.82rem;">{{ log.details }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">No audit records logged.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

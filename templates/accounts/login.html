@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | RetailAnalytics Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="brand-badge" style="margin: 0 auto 1rem; width: 48px; height: 48px; font-size: 1.35rem;">RA</div>
+        <h2 style="font-size: 1.45rem; font-weight: 700; color: #fff;">RetailAnalytics Pro</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Enterprise Sales & Predictive Modeling Platform</p>
+      </div>
+
+      <!-- Quick Demo Credentials Box -->
+      <div class="demo-credentials-box">
+        <div style="font-weight: 600; color: #818cf8; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+          <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+          <span>Instant Demo Logins</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+          <button type="button" onclick="fillCredentials('admin', 'admin123')">
+            Admin (admin123)
+          </button>
+          <button type="button" onclick="fillCredentials('analyst', 'analyst123')">
+            Analyst (analyst123)
+          </button>
+        </div>
+      </div>
+
+      {% if messages %}
+        <div class="messages-container" style="margin-bottom: 1rem;">
+          {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}error{% else %}info{% endif %}">
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'accounts:login' %}">
+        {% csrf_token %}
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem;">Username or Email</label>
+          {{ form.username }}
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem;">Password</label>
+          {{ form.password }}
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; height: 44px; font-weight: 600;">
+          <span>Sign In to Platform</span>
+          <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 1.5rem; font-size: 0.82rem; color: var(--text-dim);">
+        Don't have an account? <a href="{% url 'accounts:register' %}" style="color: var(--primary); text-decoration: underline;">Register here</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    function fillCredentials(u, p) {
+      document.querySelector('input[name="username"]').value = u;
+      document.querySelector('input[name="password"]').value = p;
+    }
+  </script>
+</body>
+</html>

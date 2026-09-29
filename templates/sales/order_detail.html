@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Order #{{ order.order_id }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+      <a href="{% url 'sales:order_list' %}" class="btn btn-secondary btn-sm"><i data-lucide="arrow-left"></i> Back to Orders</a>
+      <span class="badge {% if order.status == 'Delivered' %}badge-success{% elif order.status == 'Shipped' %}badge-info{% elif order.status == 'Cancelled' %}badge-danger{% else %}badge-warning{% endif %}">
+        {{ order.status }}
+      </span>
+    </div>
+    <h1 class="page-title">Order #{{ order.order_id }}</h1>
+    <p class="page-subtitle">Recorded on {{ order.order_date|date:"F d, Y" }} &bull; Currency: {{ order.currency }}</p>
+  </div>
+</div>
+
+<div class="charts-grid" style="grid-template-columns: 2fr 1fr; margin-bottom: 2rem;">
+  <!-- Order Items Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Order Line Items</h3>
+    </div>
+    <div class="table-wrapper">
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th>Item / SKU</th>
+            <th>Unit Price</th>
+            <th>Quantity</th>
+            <th>Total (INR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td>
+              <strong style="color: #fff;">{{ item.product_name|default:item.sku }}</strong>
+              <div style="font-size: 0.75rem; color: var(--text-dim);">SKU: {{ item.sku }}</div>
+            </td>
+            <td>&#8377; {{ item.unit_price|floatformat:2|intcomma }}</td>
+            <td>{{ item.quantity }} pcs</td>
+            <td><strong style="color: #34d399;">&#8377; {{ item.total_amount|floatformat:2|intcomma }}</strong></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" style="text-align: right; font-weight: 600; padding: 1rem;">Total Amount:</td>
+            <td style="padding: 1rem;"><strong style="font-size: 1.15rem; color: var(--primary);">&#8377; {{ order.total_amount|floatformat:2|intcomma }}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Customer & Shipping Summary Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Buyer & Fulfilment</h3>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div>
+        <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Customer Account</span>
+        <div style="font-weight: 600; color: #fff; margin-top: 0.25rem;">
+          <a href="{% url 'customers:customer_detail' order.customer.id %}" style="color: #818cf8; text-decoration: underline;">
+            {{ order.customer.name|default:order.customer.customer_id }}
+          </a>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">ID: {{ order.customer.customer_id }}</div>
+      </div>
+
+      <div>
+        <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Delivery Destination</span>
+        <div style="color: #fff; font-size: 0.88rem; margin-top: 0.25rem;">
+          {{ order.shipping_city|default:"City not provided" }}, {{ order.shipping_state }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Postal Code: {{ order.shipping_postal_code|default:"-" }}</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Country: {{ order.shipping_country }}</div>
+      </div>
+
+      <div>
+        <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Logistics & Routing</span>
+        <div style="color: #fff; font-size: 0.88rem; margin-top: 0.25rem;">
+          Fulfilment: <strong>{{ order.fulfilment|default:"Direct" }}</strong>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Channel: {{ order.sales_channel }}</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">B2B Order: {% if order.is_b2b %}Yes{% else %}No{% endif %}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

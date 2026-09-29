@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Customer {{ customer.customer_id }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+      <a href="{% url 'customers:customer_list' %}" class="btn btn-secondary btn-sm"><i data-lucide="arrow-left"></i> All Customers</a>
+      <span class="segment-tag {% if customer.segment == 'Champions' %}segment-champions{% elif customer.segment == 'Loyal Customers' %}segment-loyal{% elif customer.segment == 'Potential Loyalists' %}segment-potential{% elif customer.segment == 'At Risk' %}segment-risk{% else %}segment-lost{% endif %}">
+        {{ customer.segment }}
+      </span>
+    </div>
+    <h1 class="page-title">{{ customer.name|default:customer.customer_id }}</h1>
+    <p class="page-subtitle">Customer Identifier: <strong>{{ customer.customer_id }}</strong> &bull; Region: {{ customer.city|default:"-" }}, {{ customer.state|default:"-" }} ({{ customer.country }})</p>
+  </div>
+</div>
+
+<!-- Customer Metrics Grid -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <span class="kpi-label">Lifetime Spend</span>
+    <div class="kpi-value">&#8377; {{ customer.monetary_total|floatformat:2|intcomma }}</div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">Gross revenue attributed</span></div>
+  </div>
+
+  <div class="kpi-card">
+    <span class="kpi-label">Order Frequency</span>
+    <div class="kpi-value">{{ customer.frequency_orders }} <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-dim);">orders</span></div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">Total lifetime orders</span></div>
+  </div>
+
+  <div class="kpi-card">
+    <span class="kpi-label">Recency</span>
+    <div class="kpi-value">{{ customer.recency_days }} <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-dim);">days</span></div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">Since last order placed</span></div>
+  </div>
+
+  <div class="kpi-card">
+    <span class="kpi-label">Average Order Size</span>
+    <div class="kpi-value">&#8377; {{ customer.average_order_value|floatformat:2|intcomma }}</div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">Historical average ticket</span></div>
+  </div>
+</div>
+
+<!-- AI Repurchase Propensity Gauge -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">AI Predictive Repurchase Score</h3>
+      <p class="card-subtitle">Machine learning estimate of probability to place another order within 30 days</p>
+    </div>
+    <span class="badge {% if prediction.is_likely %}badge-success{% else %}badge-warning{% endif %}">
+      {% if prediction.is_likely %}High Propensity Target{% else %}Low Propensity{% endif %}
+    </span>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 250px;">
+      <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;">
+        <span>Predicted Purchase Probability</span>
+        <span style="color: var(--primary);">{{ prediction.probability|floatformat:1 }}%</span>
+      </div>
+      <div class="propensity-bar" style="height: 12px;">
+        <div class="propensity-fill {% if prediction.probability > 60 %}propensity-high{% elif prediction.probability > 35 %}propensity-med{% else %}propensity-low{% endif %}" data-width="{{ prediction.probability }}%"></div>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem;">
+        Risk Level: <strong style="color: #fff;">{{ prediction.risk_segment }}</strong> &bull; Model: Scikit-Learn Classifier
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Order History Table -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Purchase History Ledger</h3>
+  </div>
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Order Date</th>
+          <th>Fulfilment</th>
+          <th>Items Count</th>
+          <th>Status</th>
+          <th>Total (INR)</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><strong style="color: var(--primary);">#{{ o.order_id }}</strong></td>
+          <td>{{ o.order_date|date:"M d, Y" }}</td>
+          <td>{{ o.fulfilment|default:"Direct" }}</td>
+          <td>{{ o.total_quantity }} pcs</td>
+          <td>
+            <span class="badge {% if o.status == 'Delivered' %}badge-success{% elif o.status == 'Shipped' %}badge-info{% elif o.status == 'Cancelled' %}badge-danger{% else %}badge-warning{% endif %}">
+              {{ o.status }}
+            </span>
+          </td>
+          <td><strong>&#8377; {{ o.total_amount|floatformat:2|intcomma }}</strong></td>
+          <td>
+            <a href="{% url 'sales:order_detail' o.id %}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem;">Invoice</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-dim);">No past orders found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

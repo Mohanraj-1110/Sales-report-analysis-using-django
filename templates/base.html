@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Executive Intelligence Platform{% endblock %} | {{ app_title|default:"RetailAnalytics Pro" }}</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Master Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <div class="brand-badge">RA</div>
+        <div class="brand-text">
+          <h1>RetailAnalytics</h1>
+          <span>Pro Studio &bull; {{ project_id }}</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Core Cockpit</div>
+        <a href="{% url 'dashboard:index' %}" class="nav-item {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="{% url 'analytics:sales' %}" class="nav-item {% if request.resolver_match.app_name == 'analytics' and request.resolver_match.url_name == 'sales' %}active{% endif %}">
+          <i data-lucide="trending-up"></i>
+          <span>Sales Analytics</span>
+        </a>
+        <a href="{% url 'analytics:categories' %}" class="nav-item {% if request.resolver_match.app_name == 'analytics' and request.resolver_match.url_name == 'categories' %}active{% endif %}">
+          <i data-lucide="pie-chart"></i>
+          <span>Category Share</span>
+        </a>
+        <a href="{% url 'analytics:geography' %}" class="nav-item {% if request.resolver_match.app_name == 'analytics' and request.resolver_match.url_name == 'geography' %}active{% endif %}">
+          <i data-lucide="map-pin"></i>
+          <span>Geography</span>
+        </a>
+
+        <div class="nav-section-title">E-Commerce Ops</div>
+        <a href="{% url 'sales:order_list' %}" class="nav-item {% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
+          <i data-lucide="shopping-bag"></i>
+          <span>Orders & Revenue</span>
+        </a>
+        <a href="{% url 'customers:customer_list' %}" class="nav-item {% if request.resolver_match.app_name == 'customers' and request.resolver_match.url_name != 'rfm' %}active{% endif %}">
+          <i data-lucide="users"></i>
+          <span>Customer Directory</span>
+        </a>
+        <a href="{% url 'customers:rfm' %}" class="nav-item {% if request.resolver_match.app_name == 'customers' and request.resolver_match.url_name == 'rfm' %}active{% endif %}">
+          <i data-lucide="target"></i>
+          <span>RFM Segmentation</span>
+        </a>
+        <a href="{% url 'products:product_list' %}" class="nav-item {% if request.resolver_match.app_name == 'products' %}active{% endif %}">
+          <i data-lucide="boxes"></i>
+          <span>Products & SKU</span>
+        </a>
+
+        <div class="nav-section-title">Predictive AI & ML</div>
+        <a href="{% url 'predictions:repurchase' %}" class="nav-item {% if request.resolver_match.app_name == 'predictions' and request.resolver_match.url_name == 'repurchase' %}active{% endif %}">
+          <i data-lucide="sparkles"></i>
+          <span>Repurchase Propensity</span>
+        </a>
+        <a href="{% url 'forecasting:forecast' %}" class="nav-item {% if request.resolver_match.app_name == 'forecasting' %}active{% endif %}">
+          <i data-lucide="line-chart"></i>
+          <span>Sales Forecast</span>
+        </a>
+        <a href="{% url 'predictions:models' %}" class="nav-item {% if request.resolver_match.app_name == 'predictions' and request.resolver_match.url_name == 'models' %}active{% endif %}">
+          <i data-lucide="cpu"></i>
+          <span>ML Model Registry</span>
+        </a>
+
+        <div class="nav-section-title">Data & Compliance</div>
+        <a href="{% url 'datasets:dataset_list' %}" class="nav-item {% if request.resolver_match.app_name == 'datasets' %}active{% endif %}">
+          <i data-lucide="database"></i>
+          <span>Datasets & ETL</span>
+        </a>
+        <a href="{% url 'reports:report_list' %}" class="nav-item {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
+          <i data-lucide="file-spreadsheet"></i>
+          <span>Reports & Export</span>
+        </a>
+        {% if is_admin %}
+        <a href="{% url 'accounts:audit_logs' %}" class="nav-item {% if request.resolver_match.app_name == 'accounts' and request.resolver_match.url_name == 'audit_logs' %}active{% endif %}">
+          <i data-lucide="shield-check"></i>
+          <span>Audit Trail</span>
+        </a>
+        {% endif %}
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-mini-card">
+          <div class="user-avatar">{{ request.user.username|make_list|first|upper }}</div>
+          <div class="user-info">
+            <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="user-role">{{ request.user.role|default:"Analyst"|title }}</div>
+          </div>
+          <a href="{% url 'accounts:logout' %}" title="Sign out" style="color: var(--text-dim);"><i data-lucide="log-out" style="width: 17px; height: 17px;"></i></a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Top Navigation Header -->
+      <header class="app-header">
+        <div class="header-search">
+          <i data-lucide="search"></i>
+          <input type="text" placeholder="Search orders, customers, SKUs..." id="globalSearchInput">
+        </div>
+
+        <div class="header-actions">
+          <div style="font-size: 0.8rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.4rem;">
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+            <span>ML Models Online</span>
+          </div>
+
+          <!-- Notification Dropdown -->
+          <div class="btn-icon" id="notificationBtn" title="Notifications">
+            <i data-lucide="bell"></i>
+            {% if unread_notifications_count > 0 %}
+              <span class="notification-badge"></span>
+            {% endif %}
+          </div>
+
+          <a href="{% url 'accounts:profile' %}" class="btn-icon" title="My Profile">
+            <i data-lucide="user"></i>
+          </a>
+        </div>
+      </header>
+
+      <!-- App Content Container -->
+      <main class="app-content">
+        <!-- Toast / Alerts Display -->
+        {% if messages %}
+          <div class="messages-container">
+            {% for message in messages %}
+              <div class="alert alert-{% if message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}success{% endif %}">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <i data-lucide="info" style="width: 18px; height: 18px;"></i>
+                  <span>{{ message }}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:inherit;cursor:pointer;">&times;</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Apply data-width to progress / propensity gauge bars
+    document.querySelectorAll('[data-width]').forEach(function(el) {
+      el.style.width = el.getAttribute('data-width');
+    });
+
+    // Chart.js Theme Defaults for Dark Mode
+    if (window.Chart) {
+      Chart.defaults.color = '#94a3b8';
+      Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)';
+      Chart.defaults.font.family = "'Inter', sans-serif";
+    }
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

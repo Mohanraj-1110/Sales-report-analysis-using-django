@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Sales & Revenue Analytics{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Sales Trajectory & Order Volume</h1>
+    <p class="page-subtitle">Deep performance breakdown across temporal horizons and product velocity</p>
+  </div>
+  <div class="page-actions">
+    <div class="filter-group">
+      <a href="?period=7d" class="btn btn-sm {% if period == '7d' %}btn-primary{% else %}btn-secondary{% endif %}">7D</a>
+      <a href="?period=30d" class="btn btn-sm {% if period == '30d' %}btn-primary{% else %}btn-secondary{% endif %}">30D</a>
+      <a href="?period=3m" class="btn btn-sm {% if period == '3m' %}btn-primary{% else %}btn-secondary{% endif %}">90D</a>
+      <a href="?period=all" class="btn btn-sm {% if period == 'all' %}btn-primary{% else %}btn-secondary{% endif %}">All Data</a>
+    </div>
+  </div>
+</div>
+
+<!-- KPI row -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <span class="kpi-label">Filtered Period Revenue</span>
+    <div class="kpi-value">&#8377; {{ kpis.total_revenue|floatformat:2|intcomma }}</div>
+    <div class="kpi-trend">
+      <span style="color: var(--text-dim);">Window: {{ start_date|date:"M d, Y" }} &ndash; {{ end_date|date:"M d, Y" }}</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-label">Orders Completed</span>
+    <div class="kpi-value">{{ kpis.total_orders|intcomma }}</div>
+    <div class="kpi-trend">
+      <span style="color: var(--text-dim);">Total fulfilled orders in range</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-label">Average Transaction Value</span>
+    <div class="kpi-value">&#8377; {{ kpis.average_order_value|floatformat:2|intcomma }}</div>
+    <div class="kpi-trend">
+      <span style="color: var(--text-dim);">Revenue per individual order</span>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-label">Active Transacting Buyers</span>
+    <div class="kpi-value">{{ kpis.active_customers|intcomma }}</div>
+    <div class="kpi-trend">
+      <span style="color: var(--text-dim);">Unique customer accounts active</span>
+    </div>
+  </div>
+</div>
+
+<!-- Main Line Chart -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">Daily Temporal Sales Run-rate</h3>
+      <p class="card-subtitle">Revenue progression and order density curve</p>
+    </div>
+  </div>
+  <div class="chart-container" style="height: 380px;">
+    <canvas id="salesAnalyticsChart"></canvas>
+  </div>
+</div>
+
+<!-- Top Products Table -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">Top Revenue Generating SKUs</h3>
+      <p class="card-subtitle">Highest grossing inventory styles in selected timeframe</p>
+    </div>
+    <a href="{% url 'products:product_list' %}" class="btn btn-secondary btn-sm">Full Catalog</a>
+  </div>
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>SKU Code</th>
+          <th>Product Description</th>
+          <th>Units Sold</th>
+          <th>Orders Included</th>
+          <th>Gross Revenue</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prod in top_products %}
+        <tr>
+          <td><strong style="color: var(--primary);">{{ prod.sku }}</strong></td>
+          <td>{{ prod.name }}</td>
+          <td><strong>{{ prod.units|intcomma }}</strong> pcs</td>
+          <td>{{ prod.orders|intcomma }}</td>
+          <td><strong style="color: #34d399;">&#8377; {{ prod.revenue|floatformat:2|intcomma }}</strong></td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">No product data found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ trends.labels|json_script:"salesTrendsLabels" }}
+{{ trends.revenues|json_script:"salesTrendsRevenues" }}
+{{ trends.orders|json_script:"salesTrendsOrders" }}
+<script>
+  const labels = JSON.parse(document.getElementById('salesTrendsLabels').textContent || '[]');
+  const revs = JSON.parse(document.getElementById('salesTrendsRevenues').textContent || '[]');
+  const ords = JSON.parse(document.getElementById('salesTrendsOrders').textContent || '[]');
+
+  const ctx = document.getElementById('salesAnalyticsChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Revenue (INR)',
+          data: revs,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.15)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 3,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Daily Orders',
+          data: ords,
+          borderColor: '#06b6d4',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          fill: false,
+          tension: 0.3,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: 'rgba(255, 255, 255, 0.04)' } },
+        y: {
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          ticks: { callback: (v) => '₹' + Number(v).toLocaleString() }
+        },
+        y1: { position: 'right', grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+</script>
+{% endblock %}

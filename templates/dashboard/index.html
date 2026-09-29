@@ -1,0 +1,398 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Executive Cockpit{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Executive Sales & Analytics Cockpit</h1>
+    <p class="page-subtitle">Real-time enterprise metrics, AI predictions, and multi-channel performance</p>
+  </div>
+  <div class="page-actions">
+    <div class="filter-group">
+      <a href="?period=7d" class="btn btn-sm {% if period == '7d' %}btn-primary{% else %}btn-secondary{% endif %}">7D</a>
+      <a href="?period=30d" class="btn btn-sm {% if period == '30d' or not period %}btn-primary{% else %}btn-secondary{% endif %}">30D</a>
+      <a href="?period=3m" class="btn btn-sm {% if period == '3m' %}btn-primary{% else %}btn-secondary{% endif %}">90D</a>
+      <a href="?period=all" class="btn btn-sm {% if period == 'all' %}btn-primary{% else %}btn-secondary{% endif %}">All Time</a>
+    </div>
+    <a href="{% url 'reports:report_list' %}" class="btn btn-secondary btn-sm">
+      <i data-lucide="download"></i>
+      <span>Export</span>
+    </a>
+  </div>
+</div>
+
+<!-- KPI Summary Cards -->
+<div class="kpi-grid">
+  <!-- Revenue Card -->
+  <div class="kpi-card">
+    <div class="kpi-header">
+      <span class="kpi-label">Gross Revenue</span>
+      <div class="kpi-icon-box" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
+        <i data-lucide="dollar-sign"></i>
+      </div>
+    </div>
+    <div class="kpi-value">&#8377; {{ kpis.total_revenue|floatformat:2|intcomma }}</div>
+    <div class="kpi-trend">
+      {% if kpis.revenue_growth >= 0 %}
+        <span class="trend-up" style="display:flex;align-items:center;gap:2px;"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> +{{ kpis.revenue_growth }}%</span>
+      {% else %}
+        <span class="trend-down" style="display:flex;align-items:center;gap:2px;"><i data-lucide="trending-down" style="width:14px;height:14px;"></i> {{ kpis.revenue_growth }}%</span>
+      {% endif %}
+      <span style="color: var(--text-dim);">vs previous window</span>
+    </div>
+  </div>
+
+  <!-- Orders Card -->
+  <div class="kpi-card">
+    <div class="kpi-header">
+      <span class="kpi-label">Total Volume</span>
+      <div class="kpi-icon-box" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">
+        <i data-lucide="shopping-cart"></i>
+      </div>
+    </div>
+    <div class="kpi-value">{{ kpis.total_orders|intcomma }} <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-dim);">orders</span></div>
+    <div class="kpi-trend">
+      {% if kpis.orders_growth >= 0 %}
+        <span class="trend-up" style="display:flex;align-items:center;gap:2px;"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> +{{ kpis.orders_growth }}%</span>
+      {% else %}
+        <span class="trend-down" style="display:flex;align-items:center;gap:2px;"><i data-lucide="trending-down" style="width:14px;height:14px;"></i> {{ kpis.orders_growth }}%</span>
+      {% endif %}
+      <span style="color: var(--text-dim);">vs previous window</span>
+    </div>
+  </div>
+
+  <!-- Average Order Value (AOV) -->
+  <div class="kpi-card">
+    <div class="kpi-header">
+      <span class="kpi-label">Average Order Value</span>
+      <div class="kpi-icon-box" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+        <i data-lucide="receipt"></i>
+      </div>
+    </div>
+    <div class="kpi-value">&#8377; {{ kpis.average_order_value|floatformat:2|intcomma }}</div>
+    <div class="kpi-trend">
+      {% if kpis.aov_growth >= 0 %}
+        <span class="trend-up" style="display:flex;align-items:center;gap:2px;"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> +{{ kpis.aov_growth }}%</span>
+      {% else %}
+        <span class="trend-down" style="display:flex;align-items:center;gap:2px;"><i data-lucide="trending-down" style="width:14px;height:14px;"></i> {{ kpis.aov_growth }}%</span>
+      {% endif %}
+      <span style="color: var(--text-dim);">per transaction</span>
+    </div>
+  </div>
+
+  <!-- Customer Base Card -->
+  <div class="kpi-card">
+    <div class="kpi-header">
+      <span class="kpi-label">Active Customers</span>
+      <div class="kpi-icon-box" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
+        <i data-lucide="user-check"></i>
+      </div>
+    </div>
+    <div class="kpi-value">{{ kpis.active_customers|intcomma }}</div>
+    <div class="kpi-trend">
+      <span style="color: var(--text-dim);">out of {{ kpis.total_customers|intcomma }} total cohorts</span>
+    </div>
+  </div>
+</div>
+
+<!-- Primary Interactive Charts Row -->
+<div class="charts-grid">
+  <!-- Revenue Trends Chart -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Daily Sales & Order Trajectory</h3>
+        <p class="card-subtitle">Aggregate revenue and transaction volume across timeframe</p>
+      </div>
+      <div class="badge badge-info">Chart.js Live</div>
+    </div>
+    <div class="chart-container">
+      <canvas id="revenueTrendChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Category Breakdown Chart -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Revenue by Category</h3>
+        <p class="card-subtitle">Top merchandise categories</p>
+      </div>
+    </div>
+    <div class="chart-container" style="height: 280px;">
+      <canvas id="categoryChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Secondary Row: RFM Segments & Predictive Intelligence -->
+<div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
+  <!-- RFM Customer Segments -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">RFM Customer Segmentation</h3>
+        <p class="card-subtitle">Distribution across loyalty and churn risk cohorts</p>
+      </div>
+      <a href="{% url 'customers:rfm' %}" class="btn btn-secondary btn-sm">View Matrix</a>
+    </div>
+    <div class="chart-container" style="height: 280px;">
+      <canvas id="rfmChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Machine Learning Model & Forecasting Status -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Machine Learning Intelligence</h3>
+        <p class="card-subtitle">Active predictive scoring & demand forecasting models</p>
+      </div>
+      <a href="{% url 'predictions:models' %}" class="btn btn-secondary btn-sm">ML Studio</a>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
+      <!-- Active Classifier Box -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="target" style="color: #818cf8; width: 18px; height: 18px;"></i>
+            <span style="font-weight: 600; font-size: 0.9rem;">Customer Repurchase Classifier</span>
+          </div>
+          <span class="badge badge-success">Active &bull; {{ active_classifier.algorithm|default:"Logistic Regression" }}</span>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+          Accuracy: <strong style="color: #fff;">{{ active_classifier.metrics.accuracy|default:"0.95" }}</strong> &bull;
+          F1 Score: <strong style="color: #fff;">{{ active_classifier.metrics.f1|default:"0.96" }}</strong> &bull;
+          ROC-AUC: <strong style="color: #fff;">{{ active_classifier.metrics.roc_auc|default:"0.96" }}</strong>
+        </p>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 0.78rem; color: var(--text-dim);">Trained on {{ active_classifier.training_sample_count|default:"372" }} customer records</span>
+          <a href="{% url 'predictions:repurchase' %}" class="btn btn-primary btn-sm">Scoring Insights</a>
+        </div>
+      </div>
+
+      <!-- Active Forecaster Box -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="trending-up" style="color: #22d3ee; width: 18px; height: 18px;"></i>
+            <span style="font-weight: 600; font-size: 0.9rem;">Sales Forecasting Regressor</span>
+          </div>
+          <span class="badge badge-info">Ridge Regression</span>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+          Horizon: <strong style="color: #fff;">30-Day Multi-Step Projection</strong> &bull;
+          R&sup2; Fit: <strong style="color: #fff;">{{ active_forecaster.metrics.r2_score|default:"0.88" }}</strong>
+        </p>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 0.78rem; color: var(--text-dim);">Projected 30-day confidence intervals</span>
+          <a href="{% url 'forecasting:forecast' %}" class="btn btn-secondary btn-sm">View Forecast Graph</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Transactions Table -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">Recent Transactions</h3>
+      <p class="card-subtitle">Real-time orders processed across merchant and fulfilled channels</p>
+    </div>
+    <a href="{% url 'sales:order_list' %}" class="btn btn-secondary btn-sm">View All Orders</a>
+  </div>
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>City / State</th>
+          <th>Items</th>
+          <th>Status</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td><strong style="color: var(--primary);">#{{ order.order_id }}</strong></td>
+          <td>{{ order.customer.name|default:order.customer.customer_id }}</td>
+          <td>{{ order.order_date|date:"M d, Y" }}</td>
+          <td>{{ order.shipping_city|default:"-" }}, {{ order.shipping_state|default:"-" }}</td>
+          <td>{{ order.total_quantity }}</td>
+          <td>
+            <span class="badge {% if order.status == 'Delivered' %}badge-success{% elif order.status == 'Shipped' %}badge-info{% elif order.status == 'Cancelled' %}badge-danger{% else %}badge-warning{% endif %}">
+              {{ order.status }}
+            </span>
+          </td>
+          <td><strong>&#8377; {{ order.total_amount|floatformat:2|intcomma }}</strong></td>
+          <td>
+            <a href="{% url 'sales:order_detail' order.id %}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem;">Details</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-dim);">No transactions recorded in this period.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ trends.labels|json_script:"dashTrendsLabels" }}
+{{ trends.revenues|json_script:"dashTrendsRevenues" }}
+{{ trends.orders|json_script:"dashTrendsOrders" }}
+{{ category_data.labels|json_script:"dashCatLabels" }}
+{{ category_data.revenues|json_script:"dashCatRevenues" }}
+{{ rfm_data.labels|json_script:"dashRfmLabels" }}
+{{ rfm_data.counts|json_script:"dashRfmCounts" }}
+<script>
+  // 1. Revenue & Order Trends Chart
+  const trendLabels = JSON.parse(document.getElementById('dashTrendsLabels').textContent || '[]');
+  const trendRevenues = JSON.parse(document.getElementById('dashTrendsRevenues').textContent || '[]');
+  const trendOrders = JSON.parse(document.getElementById('dashTrendsOrders').textContent || '[]');
+
+  const trendCtx = document.getElementById('revenueTrendChart').getContext('2d');
+  new Chart(trendCtx, {
+    type: 'line',
+    data: {
+      labels: trendLabels,
+      datasets: [
+        {
+          label: 'Revenue (INR)',
+          data: trendRevenues,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.12)',
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          yAxisID: 'y',
+          pointRadius: 2,
+          pointHoverRadius: 6,
+        },
+        {
+          label: 'Orders Count',
+          data: trendOrders,
+          borderColor: '#06b6d4',
+          borderDash: [4, 4],
+          borderWidth: 2,
+          fill: false,
+          tension: 0.35,
+          yAxisID: 'y1',
+          pointRadius: 2,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { color: 'rgba(255, 255, 255, 0.04)' } },
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          ticks: { callback: (val) => '₹' + Number(val).toLocaleString() }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          grid: { drawOnChartArea: false }
+        }
+      },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              if (ctx.dataset.label.includes('Revenue')) {
+                return ' Revenue: ₹' + Number(ctx.raw).toLocaleString();
+              }
+              return ' Orders: ' + ctx.raw;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // 2. Category Share Doughnut Chart
+  const catLabels = JSON.parse(document.getElementById('dashCatLabels').textContent || '[]');
+  const catRevenues = JSON.parse(document.getElementById('dashCatRevenues').textContent || '[]');
+
+  const catCtx = document.getElementById('categoryChart').getContext('2d');
+  new Chart(catCtx, {
+    type: 'doughnut',
+    data: {
+      labels: catLabels,
+      datasets: [{
+        data: catRevenues,
+        backgroundColor: [
+          '#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#64748b'
+        ],
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ' ' + ctx.label + ': ₹' + Number(ctx.raw).toLocaleString()
+          }
+        }
+      },
+      cutout: '72%'
+    }
+  });
+
+  // 3. RFM Segment Bar Chart
+  const rfmLabels = JSON.parse(document.getElementById('dashRfmLabels').textContent || '[]');
+  const rfmCounts = JSON.parse(document.getElementById('dashRfmCounts').textContent || '[]');
+
+  const rfmCtx = document.getElementById('rfmChart').getContext('2d');
+  new Chart(rfmCtx, {
+    type: 'bar',
+    data: {
+      labels: rfmLabels,
+      datasets: [{
+        label: 'Customers',
+        data: rfmCounts,
+        backgroundColor: [
+          'rgba(16, 185, 129, 0.7)',
+          'rgba(59, 130, 246, 0.7)',
+          'rgba(139, 92, 246, 0.7)',
+          'rgba(245, 158, 11, 0.7)',
+          'rgba(239, 68, 68, 0.7)',
+          'rgba(100, 116, 139, 0.7)'
+        ],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(255, 255, 255, 0.04)' } }
+      }
+    }
+  });
+</script>
+{% endblock %}

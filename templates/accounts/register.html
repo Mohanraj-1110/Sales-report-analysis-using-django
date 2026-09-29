@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | RetailAnalytics Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card" style="max-width: 500px;">
+      <div class="auth-header">
+        <div class="brand-badge" style="margin: 0 auto 1rem; width: 44px; height: 44px; font-size: 1.25rem;">RA</div>
+        <h2 style="font-size: 1.45rem; font-weight: 700; color: #fff;">Create Your Account</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Join the RetailAnalytics Pro Enterprise Cockpit</p>
+      </div>
+
+      {% if form.errors %}
+        <div class="alert alert-error" style="margin-bottom: 1rem;">
+          <span>Please review the form errors and try again.</span>
+        </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'accounts:register' %}">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">First Name</label>
+            {{ form.first_name }}
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Last Name</label>
+            {{ form.last_name }}
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Username</label>
+          {{ form.username }}
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Email Address</label>
+          {{ form.email }}
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Assigned Role</label>
+          {{ form.role }}
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Password</label>
+          {{ form.password_1 }}
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Confirm Password</label>
+          {{ form.password_2 }}
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; height: 44px; font-weight: 600;">
+          <span>Register Account</span>
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 1.5rem; font-size: 0.82rem; color: var(--text-dim);">
+        Already have an account? <a href="{% url 'accounts:login' %}" style="color: var(--primary); text-decoration: underline;">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

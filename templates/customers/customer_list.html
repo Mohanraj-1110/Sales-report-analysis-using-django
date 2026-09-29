@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Customer Cohorts & RFM Directory{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Customer Cohort Directory</h1>
+    <p class="page-subtitle">Behavioral metrics, lifetime spend, recency intervals, and RFM scores</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'customers:rfm' %}" class="btn btn-secondary btn-sm">
+      <i data-lucide="target"></i>
+      <span>RFM Matrix</span>
+    </a>
+  </div>
+</div>
+
+<!-- Segment Filter Pills -->
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+  <a href="{% url 'customers:customer_list' %}" class="btn btn-sm {% if not segment_filter %}btn-primary{% else %}btn-secondary{% endif %}">
+    All ({{ total_count|intcomma }})
+  </a>
+  {% for s in segment_counts %}
+    <a href="?segment={{ s.segment }}" class="btn btn-sm {% if segment_filter == s.segment %}btn-primary{% else %}btn-secondary{% endif %}">
+      {{ s.segment }} ({{ s.count|intcomma }})
+    </a>
+  {% endfor %}
+</div>
+
+<!-- Search Bar -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+  <form method="get" class="toolbar" style="margin-bottom: 0;">
+    <div class="filter-group">
+      <input type="text" name="q" value="{{ search_query }}" placeholder="Search customer ID, name, city..." class="input-custom" style="width: 320px;">
+      {% if segment_filter %}
+        <input type="hidden" name="segment" value="{{ segment_filter }}">
+      {% endif %}
+      <button type="submit" class="btn btn-primary btn-sm">
+        <i data-lucide="search"></i>
+        <span>Search</span>
+      </button>
+      {% if search_query %}
+        <a href="?{% if segment_filter %}segment={{ segment_filter }}{% endif %}" class="btn btn-secondary btn-sm">Reset</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- Customers Table -->
+<div class="card">
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Customer ID</th>
+          <th>Location</th>
+          <th>Segment</th>
+          <th>Orders Count</th>
+          <th>Recency</th>
+          <th>Total Spend (INR)</th>
+          <th>AOV</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in customers %}
+        <tr>
+          <td>
+            <a href="{% url 'customers:customer_detail' c.id %}" style="color: #fff; font-weight: 600;">
+              {{ c.name|default:c.customer_id }}
+            </a>
+            <div style="font-size: 0.72rem; color: var(--text-dim);">{{ c.customer_id }}</div>
+          </td>
+          <td>{{ c.city|default:"-" }}, {{ c.state|default:"-" }}</td>
+          <td>
+            <span class="segment-tag {% if c.segment == 'Champions' %}segment-champions{% elif c.segment == 'Loyal Customers' %}segment-loyal{% elif c.segment == 'Potential Loyalists' %}segment-potential{% elif c.segment == 'At Risk' %}segment-risk{% else %}segment-lost{% endif %}">
+              {{ c.segment }}
+            </span>
+          </td>
+          <td><strong>{{ c.frequency_orders }}</strong> orders</td>
+          <td>{{ c.recency_days }} days ago</td>
+          <td><strong style="color: #34d399;">&#8377; {{ c.monetary_total|floatformat:2|intcomma }}</strong></td>
+          <td>&#8377; {{ c.average_order_value|floatformat:2|intcomma }}</td>
+          <td>
+            <a href="{% url 'customers:customer_detail' c.id %}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem;">Profile</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-dim);">No customer records match filter.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if customers.has_other_pages %}
+  <div class="pagination">
+    <span>Showing page {{ customers.number }} of {{ customers.paginator.num_pages }}</span>
+    <div class="pagination-links">
+      {% if customers.has_previous %}
+        <a href="?page={{ customers.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if segment_filter %}&segment={{ segment_filter }}{% endif %}" class="page-btn">&laquo; Prev</a>
+      {% endif %}
+
+      <span class="page-btn active">{{ customers.number }}</span>
+
+      {% if customers.has_next %}
+        <a href="?page={{ customers.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if segment_filter %}&segment={{ segment_filter }}{% endif %}" class="page-btn">Next &raquo;</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

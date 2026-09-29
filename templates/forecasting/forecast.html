@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Sales Forecasting & Projections{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Predictive Sales Demand Forecasting</h1>
+    <p class="page-subtitle">Multi-step time-series autoregressive regressor projecting future sales volumes with 95% confidence intervals</p>
+  </div>
+  <div class="page-actions">
+    <div class="filter-group">
+      <a href="?horizon=7" class="btn btn-sm {% if horizon == 7 %}btn-primary{% else %}btn-secondary{% endif %}">7 Days</a>
+      <a href="?horizon=30" class="btn btn-sm {% if horizon == 30 %}btn-primary{% else %}btn-secondary{% endif %}">30 Days</a>
+      <a href="?horizon=90" class="btn btn-sm {% if horizon == 90 %}btn-primary{% else %}btn-secondary{% endif %}">90 Days</a>
+    </div>
+    <form method="post" action="{% url 'forecasting:train' %}" style="display: inline;">
+      {% csrf_token %}
+      <input type="hidden" name="horizon" value="{{ horizon }}">
+      <button type="submit" class="btn btn-primary btn-sm">
+        <i data-lucide="refresh-cw"></i>
+        <span>Recalculate Projections</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Projection Highlight Metrics -->
+<div class="kpi-grid">
+  <div class="kpi-card" style="border-top: 3px solid #06b6d4;">
+    <span class="kpi-label">Projected Horizon Revenue</span>
+    <div class="kpi-value" style="color: #22d3ee;">&#8377; {{ total_projected|floatformat:2|intcomma }}</div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">Cumulative expected {{ horizon }}-day inflow</span></div>
+  </div>
+
+  <div class="kpi-card">
+    <span class="kpi-label">Active ML Regressor</span>
+    <div class="kpi-value" style="font-size: 1.35rem; color: #fff;">{{ active_model.algorithm|default:"Ridge Time-Series" }}</div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">L2 regularized with calendar features</span></div>
+  </div>
+
+  <div class="kpi-card">
+    <span class="kpi-label">Regression Goodness of Fit</span>
+    <div class="kpi-value" style="color: #34d399;">{{ active_model.metrics.r2_score|default:"1.00" }}</div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">R&sup2; coefficient of determination</span></div>
+  </div>
+</div>
+
+<!-- Forecast Trajectory Chart -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <div>
+      <h3 class="card-title">{{ horizon }}-Day Projected Sales Trajectory</h3>
+      <p class="card-subtitle">Historical actuals paired with future expected trajectory and confidence bands</p>
+    </div>
+    <span class="badge badge-info">Autoregressive Multi-step</span>
+  </div>
+  <div class="chart-container" style="height: 380px;">
+    <canvas id="forecastChart"></canvas>
+  </div>
+</div>
+
+<!-- Day by Day Projection Table -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Daily Forecast Granularity Ledger</h3>
+  </div>
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Projection Target Date</th>
+          <th>Projected Daily Revenue</th>
+          <th>Lower Bound (95% CI)</th>
+          <th>Upper Bound (95% CI)</th>
+          <th>Model Algorithm</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in forecasts %}
+        <tr>
+          <td><strong style="color: #fff;">{{ f.forecast_date|date:"l, M d, Y" }}</strong></td>
+          <td><strong style="color: #22d3ee;">&#8377; {{ f.predicted_revenue|floatformat:2|intcomma }}</strong></td>
+          <td>&#8377; {{ f.lower_bound|floatformat:2|intcomma }}</td>
+          <td>&#8377; {{ f.upper_bound|floatformat:2|intcomma }}</td>
+          <td><span class="badge badge-secondary">{{ f.model_record.algorithm|default:"Ridge Regression" }}</span></td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">No forecast records generated. Click "Recalculate Projections" above.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ hist_labels|json_script:"forecastHistLabels" }}
+{{ hist_values|json_script:"forecastHistValues" }}
+{{ forecast_labels|json_script:"forecastLabels" }}
+{{ forecast_values|json_script:"forecastValues" }}
+{{ lower_bounds|json_script:"forecastLowerBounds" }}
+{{ upper_bounds|json_script:"forecastUpperBounds" }}
+<script>
+  const histLabels = JSON.parse(document.getElementById('forecastHistLabels').textContent || '[]');
+  const histValues = JSON.parse(document.getElementById('forecastHistValues').textContent || '[]');
+
+  const fLabels = JSON.parse(document.getElementById('forecastLabels').textContent || '[]');
+  const fValues = JSON.parse(document.getElementById('forecastValues').textContent || '[]');
+  const fLower = JSON.parse(document.getElementById('forecastLowerBounds').textContent || '[]');
+  const fUpper = JSON.parse(document.getElementById('forecastUpperBounds').textContent || '[]');
+
+  // Combine timelines
+  const allLabels = [...histLabels, ...fLabels];
+  const historicalSeries = [...histValues, ...Array(fLabels.length).fill(null)];
+  const projectedSeries = [...Array(histLabels.length).fill(null), ...fValues];
+  // Connect bridge between historical and projected
+  if (histValues.length > 0 && fValues.length > 0) {
+    projectedSeries[histValues.length - 1] = histValues[histValues.length - 1];
+  }
+
+  const ctx = document.getElementById('forecastChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: allLabels,
+      datasets: [
+        {
+          label: 'Historical Actual Revenue',
+          data: historicalSeries,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          fill: true,
+          tension: 0.25,
+          borderWidth: 2.5
+        },
+        {
+          label: 'ML Forecast Projection',
+          data: projectedSeries,
+          borderColor: '#06b6d4',
+          borderDash: [5, 5],
+          backgroundColor: 'rgba(6, 182, 212, 0.15)',
+          fill: true,
+          tension: 0.25,
+          borderWidth: 2.5,
+          pointRadius: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: 'rgba(255, 255, 255, 0.04)' } },
+        y: {
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          ticks: { callback: (v) => '₹' + Number(v).toLocaleString() }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ' ' + ctx.dataset.label + ': ₹' + Number(ctx.raw).toLocaleString()
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

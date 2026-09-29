@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Datasets & Data Ingestion{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Datasets & Ingestion Hub</h1>
+    <p class="page-subtitle">Multi-channel raw datasets, automated schema detection, cleaning, and database loading</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'datasets:upload' %}" class="btn btn-primary btn-sm">
+      <i data-lucide="upload-cloud"></i>
+      <span>Upload Dataset</span>
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Dataset Name</th>
+          <th>File Format</th>
+          <th>File Size</th>
+          <th>Total Rows</th>
+          <th>Valid Ingested</th>
+          <th>Status</th>
+          <th>Uploaded At</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in datasets %}
+        <tr>
+          <td><strong style="color: #fff;">{{ d.name }}</strong></td>
+          <td><span class="badge badge-secondary">{{ d.file_type }}</span></td>
+          <td>{{ d.file_size|filesizeformat }}</td>
+          <td>{{ d.total_rows|intcomma }}</td>
+          <td><strong style="color: #34d399;">{{ d.valid_rows|intcomma }}</strong></td>
+          <td>
+            <span class="badge {% if d.status == 'Imported' %}badge-success{% elif d.status == 'Validated' %}badge-info{% elif d.status == 'Failed' %}badge-danger{% else %}badge-warning{% endif %}">
+              {{ d.status }}
+            </span>
+          </td>
+          <td>{{ d.uploaded_at|date:"M d, Y H:i" }}</td>
+          <td>
+            <a href="{% url 'datasets:dataset_detail' d.id %}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem;">Inspection</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-dim);">No datasets uploaded yet. Click "Upload Dataset" to begin.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ dataset.name }} - Dataset Details{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+      <a href="{% url 'datasets:dataset_list' %}" class="btn btn-secondary btn-sm"><i data-lucide="arrow-left"></i> All Datasets</a>
+      <span class="badge {% if dataset.status == 'Imported' %}badge-success{% elif dataset.status == 'Validated' %}badge-info{% elif dataset.status == 'Failed' %}badge-danger{% else %}badge-warning{% endif %}">
+        {{ dataset.status }}
+      </span>
+    </div>
+    <h1 class="page-title">{{ dataset.name }}</h1>
+    <p class="page-subtitle">Uploaded: {{ dataset.uploaded_at|date:"F d, Y H:i" }} &bull; Size: {{ dataset.file_size|filesizeformat }} &bull; Rows: {{ dataset.total_rows|intcomma }}</p>
+  </div>
+  <div class="page-actions">
+    {% if dataset.status != 'Processing' %}
+      <form method="post" action="{% url 'datasets:trigger_import' dataset.id %}" style="display: flex; gap: 0.5rem; align-items: center;">
+        {% csrf_token %}
+        <select name="limit" class="select-custom" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
+          <option value="1000">1,000 Rows</option>
+          <option value="2500" selected>2,500 Rows</option>
+          <option value="5000">5,000 Rows</option>
+          <option value="15000">15,000 Rows</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">
+          <i data-lucide="play"></i>
+          <span>Process & Ingest Records</span>
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Cleaning Summary -->
+{% if dataset.cleaning_summary %}
+<div class="card" style="margin-bottom: 2rem; border-left: 4px solid #10b981;">
+  <div class="card-header">
+    <h3 class="card-title">ETL Ingestion Telemetry</h3>
+    <span class="badge badge-success">Completed</span>
+  </div>
+  <div class="kpi-grid" style="margin-bottom: 0;">
+    <div style="background: rgba(15, 23, 42, 0.5); padding: 1rem; border-radius: var(--radius-sm);">
+      <div style="font-size: 0.75rem; color: var(--text-dim);">Orders Ingested</div>
+      <div style="font-size: 1.4rem; font-weight: 700; color: #34d399;">{{ dataset.cleaning_summary.orders_imported|intcomma }}</div>
+    </div>
+    <div style="background: rgba(15, 23, 42, 0.5); padding: 1rem; border-radius: var(--radius-sm);">
+      <div style="font-size: 0.75rem; color: var(--text-dim);">New Customers Created</div>
+      <div style="font-size: 1.4rem; font-weight: 700; color: #fff;">{{ dataset.cleaning_summary.new_customers_created|intcomma }}</div>
+    </div>
+    <div style="background: rgba(15, 23, 42, 0.5); padding: 1rem; border-radius: var(--radius-sm);">
+      <div style="font-size: 0.75rem; color: var(--text-dim);">SKUs / Products Added</div>
+      <div style="font-size: 1.4rem; font-weight: 700; color: #fff;">{{ dataset.cleaning_summary.new_products_created|intcomma }}</div>
+    </div>
+    <div style="background: rgba(15, 23, 42, 0.5); padding: 1rem; border-radius: var(--radius-sm);">
+      <div style="font-size: 0.75rem; color: var(--text-dim);">Duplicates Filtered</div>
+      <div style="font-size: 1.4rem; font-weight: 700; color: #f59e0b;">{{ dataset.cleaning_summary.duplicates_removed|intcomma }}</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Schema & Detected Mapping Grid -->
+<div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
+  <!-- Column Mapping -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Intelligent Column Mapping</h3>
+    </div>
+    <div class="table-wrapper">
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th>Canonical Target Field</th>
+            <th>Source CSV Column</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for field, source_col in dataset.column_mapping.items %}
+          <tr>
+            <td><strong style="color: #fff;">{{ field }}</strong></td>
+            <td>
+              {% if source_col %}
+                <span style="color: #818cf8; font-family: var(--font-mono); font-size: 0.8rem;">{{ source_col }}</span>
+              {% else %}
+                <span style="color: var(--text-dim);">&mdash;</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if source_col %}
+                <span class="badge badge-success">Matched</span>
+              {% else %}
+                <span class="badge badge-secondary">Synthesized</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Missing Values & Hygiene -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Data Validation & Null Checks</h3>
+    </div>
+    <div class="table-wrapper">
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th>Column Header</th>
+            <th>Missing Values</th>
+            <th>Null Pct</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for col, stats in dataset.validation_summary.items %}
+          <tr>
+            <td><strong style="color: #fff;">{{ col }}</strong></td>
+            <td>{{ stats.count }} rows</td>
+            <td>
+              <span class="badge {% if stats.pct > 30 %}badge-danger{% elif stats.pct > 10 %}badge-warning{% else %}badge-info{% endif %}">
+                {{ stats.pct }}%
+              </span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" style="text-align: center; padding: 2rem; color: #34d399;">Complete dataset hygiene. No missing fields detected in sample!</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

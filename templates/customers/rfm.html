@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}RFM Customer Segmentation Matrix{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">RFM Segmentation Matrix</h1>
+    <p class="page-subtitle">Quantile analysis of Recency, Frequency, and Monetary scores across your customer portfolio</p>
+  </div>
+  <div class="page-actions">
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="recalculate" value="1">
+      <button type="submit" class="btn btn-primary btn-sm">
+        <i data-lucide="refresh-cw"></i>
+        <span>Recalculate RFM Scores</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Segment Grid Cards -->
+<div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 2rem;">
+  {% for s in segment_stats %}
+  <div class="card {% if s.segment == 'Champions' %}card-segment-champions{% elif s.segment == 'Loyal Customers' %}card-segment-loyal{% elif s.segment == 'Potential Loyalists' %}card-segment-potential{% elif s.segment == 'At Risk' %}card-segment-risk{% else %}card-segment-lost{% endif %}">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+      <h3 style="font-size: 1.05rem; font-weight: 600; color: #fff;">{{ s.segment }}</h3>
+      <span class="badge badge-secondary">{{ s.count|intcomma }} buyers</span>
+    </div>
+    <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">
+      {% if s.segment == 'Champions' %}
+        Bought recently, buy often, and spend the most. Reward them with VIP perks and early access.
+      {% elif s.segment == 'Loyal Customers' %}
+        Consistent repeat purchasers with high monetary contribution. Responsive to loyalty promotions.
+      {% elif s.segment == 'Potential Loyalists' %}
+        Recent customers with average frequency. Target with upselling and membership recommendations.
+      {% elif s.segment == 'At Risk' %}
+        High value customers who haven't ordered recently. High priority for win-back campaigns and personalized incentives.
+      {% elif s.segment == 'Lost' %}
+        Lowest recency, frequency, and spend. Lowest priority or revive through aggressive reactivation promos.
+      {% else %}
+        Newly acquired customer cohorts requiring onboarding engagement.
+      {% endif %}
+    </p>
+    <a href="{% url 'customers:customer_list' %}?segment={{ s.segment }}" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">
+      View Segment Cohort
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Segmentation Methodology Card -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">RFM Scoring Methodology</h3>
+  </div>
+  <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.7;">
+    <p style="margin-bottom: 0.75rem;">
+      The <strong>RFM (Recency, Frequency, Monetary)</strong> model partitions your active database into percentile quintiles:
+    </p>
+    <ul style="padding-left: 1.5rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.35rem;">
+      <li><strong>Recency (R):</strong> Days lapsed since the customer's last order. More recent purchasers receive higher ranks (1-5).</li>
+      <li><strong>Frequency (F):</strong> Total lifetime transaction count. Customers with frequent purchases score higher.</li>
+      <li><strong>Monetary (M):</strong> Cumulative gross currency spent. Top spenders rank in the highest quintile.</li>
+    </ul>
+    <p>
+      Total active customers evaluated in this system: <strong style="color: #fff;">{{ total_customers|intcomma }}</strong>
+    </p>
+  </div>
+</div>
+{% endblock %}

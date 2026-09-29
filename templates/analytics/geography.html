@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Geographic Sales Analytics{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Geographical Order Dispersion</h1>
+    <p class="page-subtitle">State-level demand density, shipping volume, and territory revenue contribution</p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <h3 class="card-title">Top Shipping States by Revenue</h3>
+    <span class="badge badge-info">Top 15 Regions</span>
+  </div>
+  <div class="chart-container" style="height: 360px;">
+    <canvas id="geoChart"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Regional Performance Summary</h3>
+  </div>
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>State / Territory</th>
+          <th>Orders Processed</th>
+          <th>Gross Revenue (INR)</th>
+          <th>National Share</th>
+          <th>Order Concentration</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reg in regions %}
+        <tr>
+          <td><strong style="color: var(--primary);">{{ reg.state }}</strong></td>
+          <td>{{ reg.orders|intcomma }} orders</td>
+          <td><strong style="color: #34d399;">&#8377; {{ reg.revenue|floatformat:2|intcomma }}</strong></td>
+          <td><span class="badge badge-secondary">{{ reg.share_pct }}%</span></td>
+          <td style="width: 220px;">
+            <div class="propensity-bar">
+              <div class="propensity-fill propensity-high" data-width="{{ reg.share_pct }}%"></div>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">No geographical data available.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ geo_data.labels|json_script:"geoLabelsData" }}
+{{ geo_data.revenues|json_script:"geoRevenuesData" }}
+<script>
+  const states = JSON.parse(document.getElementById('geoLabelsData').textContent || '[]');
+  const revenues = JSON.parse(document.getElementById('geoRevenuesData').textContent || '[]');
+
+  new Chart(document.getElementById('geoChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: states,
+      datasets: [{
+        label: 'Gross Revenue (INR)',
+        data: revenues,
+        backgroundColor: '#6366f1',
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          ticks: { callback: (v) => '₹' + Number(v).toLocaleString() }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

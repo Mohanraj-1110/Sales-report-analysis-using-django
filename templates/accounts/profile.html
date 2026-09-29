@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">User Account & Profile</h1>
+    <p class="page-subtitle">Manage personal information, role credentials, and platform preferences</p>
+  </div>
+</div>
+
+<div class="card" style="max-width: 650px;">
+  <div class="card-header">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div class="user-avatar" style="width: 52px; height: 52px; font-size: 1.25rem;">
+        {{ request.user.username|make_list|first|upper }}
+      </div>
+      <div>
+        <h3 class="card-title">{{ request.user.get_full_name|default:request.user.username }}</h3>
+        <p class="card-subtitle">{{ request.user.get_role_display }} &bull; {{ request.user.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" style="margin-top: 1.5rem;">
+    {% csrf_token %}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">First Name</label>
+        {{ form.first_name }}
+      </div>
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Last Name</label>
+        {{ form.last_name }}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Email Address</label>
+      {{ form.email }}
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Contact Phone</label>
+      {{ form.phone }}
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem;">Bio / Responsibilities</label>
+      {{ form.bio }}
+    </div>
+
+    <div style="display: flex; justify-content: flex-end;">
+      <button type="submit" class="btn btn-primary">
+        <i data-lucide="save"></i>
+        <span>Save Changes</span>
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

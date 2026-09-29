@@ -1,0 +1,11 @@
+.env
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+media/
+ml_models/*.joblib
+!ml_models/.gitkeep
+.DS_Store
+Thumbs.db

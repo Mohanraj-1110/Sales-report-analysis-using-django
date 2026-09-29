@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Customer Repurchase Propensity Scores{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Repurchase Propensity Scoring Studio</h1>
+    <p class="page-subtitle">Algorithmic probability scoring predicting 30-day customer re-order propensity</p>
+  </div>
+  <div class="page-actions">
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="run_predictions" value="1">
+      <button type="submit" class="btn btn-primary btn-sm">
+        <i data-lucide="play"></i>
+        <span>Execute Batch Scoring</span>
+      </button>
+    </form>
+    <a href="{% url 'predictions:models' %}" class="btn btn-secondary btn-sm">
+      <i data-lucide="sliders"></i>
+      <span>Model Specs</span>
+    </a>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <span class="kpi-label">Scored Cohorts</span>
+    <div class="kpi-value">{{ total_count|intcomma }}</div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">Evaluated against ML pipeline</span></div>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-label">Likely to Re-purchase</span>
+    <div class="kpi-value" style="color: #34d399;">{{ likely_count|intcomma }}</div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">Probability &gt; 50% threshold</span></div>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-label">High Conversion Risk</span>
+    <div class="kpi-value" style="color: #f87171;">{{ high_count|intcomma }}</div>
+    <div class="kpi-trend"><span style="color: var(--text-dim);">Require proactive retention offers</span></div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+  <div class="toolbar" style="margin-bottom: 0;">
+    <div class="filter-group">
+      <a href="{% url 'predictions:repurchase' %}" class="btn btn-sm {% if not risk_filter and not likely_filter %}btn-primary{% else %}btn-secondary{% endif %}">All</a>
+      <a href="?likely=yes" class="btn btn-sm {% if likely_filter == 'yes' %}btn-primary{% else %}btn-secondary{% endif %}">Likely Buyers Only</a>
+      <a href="?risk=High" class="btn btn-sm {% if risk_filter == 'High' %}btn-primary{% else %}btn-secondary{% endif %}">High Risk Cohorts</a>
+      <a href="?risk=Low" class="btn btn-sm {% if risk_filter == 'Low' %}btn-primary{% else %}btn-secondary{% endif %}">Low Risk Cohorts</a>
+    </div>
+  </div>
+</div>
+
+<!-- Predictions Table -->
+<div class="card">
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Customer Account</th>
+          <th>Location</th>
+          <th>Current Segment</th>
+          <th>Repurchase Probability</th>
+          <th>Classification</th>
+          <th>Risk Segment</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in predictions %}
+        <tr>
+          <td>
+            <a href="{% url 'customers:customer_detail' p.customer.id %}" style="color: #fff; font-weight: 600;">
+              {{ p.customer.name|default:p.customer.customer_id }}
+            </a>
+            <div style="font-size: 0.72rem; color: var(--text-dim);">{{ p.customer.customer_id }}</div>
+          </td>
+          <td>{{ p.customer.city|default:"-" }}, {{ p.customer.state|default:"-" }}</td>
+          <td>
+            <span class="segment-tag {% if p.customer.segment == 'Champions' %}segment-champions{% elif p.customer.segment == 'Loyal Customers' %}segment-loyal{% elif p.customer.segment == 'Potential Loyalists' %}segment-potential{% elif p.customer.segment == 'At Risk' %}segment-risk{% else %}segment-lost{% endif %}">
+              {{ p.customer.segment }}
+            </span>
+          </td>
+          <td style="width: 200px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.25rem;">
+              <span>Score</span>
+              <span>{{ p.purchase_probability|floatformat:1 }}%</span>
+            </div>
+            <div class="propensity-bar">
+              <div class="propensity-fill {% if p.purchase_probability > 60 %}propensity-high{% elif p.purchase_probability > 35 %}propensity-med{% else %}propensity-low{% endif %}" data-width="{{ p.purchase_probability }}%"></div>
+            </div>
+          </td>
+          <td>
+            {% if p.is_likely_to_purchase %}
+              <span class="badge badge-success">Likely to Buy</span>
+            {% else %}
+              <span class="badge badge-secondary">Low Conversion</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge {% if p.risk_segment == 'High' %}badge-danger{% elif p.risk_segment == 'Moderate' %}badge-warning{% else %}badge-info{% endif %}">
+              {{ p.risk_segment }} Risk
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'customers:customer_detail' p.customer.id %}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem;">Profile</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-dim);">No scored predictions found. Click "Execute Batch Scoring" to generate scores.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if predictions.has_other_pages %}
+  <div class="pagination">
+    <span>Showing page {{ predictions.number }} of {{ predictions.paginator.num_pages }}</span>
+    <div class="pagination-links">
+      {% if predictions.has_previous %}
+        <a href="?page={{ predictions.previous_page_number }}{% if risk_filter %}&risk={{ risk_filter }}{% endif %}{% if likely_filter %}&likely={{ likely_filter }}{% endif %}" class="page-btn">&laquo; Prev</a>
+      {% endif %}
+
+      <span class="page-btn active">{{ predictions.number }}</span>
+
+      {% if predictions.has_next %}
+        <a href="?page={{ predictions.next_page_number }}{% if risk_filter %}&risk={{ risk_filter }}{% endif %}{% if likely_filter %}&likely={{ likely_filter }}{% endif %}" class="page-btn">Next &raquo;</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

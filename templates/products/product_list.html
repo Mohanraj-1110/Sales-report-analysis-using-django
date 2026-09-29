@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Products Catalog & Performance{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Merchandise & SKU Performance</h1>
+    <p class="page-subtitle">Product velocity, stock status, unit pricing, and revenue attribution</p>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+  <form method="get" class="toolbar" style="margin-bottom: 0;">
+    <div class="filter-group">
+      <input type="text" name="q" value="{{ search_query }}" placeholder="Search SKU, name, or style..." class="input-custom" style="width: 280px;">
+      
+      <select name="category" class="select-custom">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="btn btn-primary btn-sm">
+        <i data-lucide="filter"></i>
+        <span>Filter</span>
+      </button>
+
+      {% if search_query or selected_category %}
+        <a href="{% url 'products:product_list' %}" class="btn btn-secondary btn-sm">Clear</a>
+      {% endif %}
+    </div>
+
+    <span style="font-size: 0.85rem; color: var(--text-muted);">
+      Found <strong>{{ total_count|intcomma }}</strong> items
+    </span>
+  </form>
+</div>
+
+<!-- Product Table -->
+<div class="card">
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>SKU Code</th>
+          <th>Product Title</th>
+          <th>Category</th>
+          <th>Unit Price</th>
+          <th>Cost Price</th>
+          <th>Units Sold</th>
+          <th>Gross Revenue</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td><strong style="color: var(--primary);">{{ p.sku }}</strong></td>
+          <td>
+            <div style="font-weight: 500; color: #fff;">{{ p.name }}</div>
+            {% if p.style %}
+              <div style="font-size: 0.75rem; color: var(--text-dim);">Style: {{ p.style }}</div>
+            {% endif %}
+          </td>
+          <td><span class="badge badge-secondary">{{ p.category.name|default:"General" }}</span></td>
+          <td>&#8377; {{ p.unit_price|floatformat:2|intcomma }}</td>
+          <td>&#8377; {{ p.cost_price|floatformat:2|intcomma }}</td>
+          <td><strong>{{ p.total_units_sold|default:0|intcomma }}</strong> pcs</td>
+          <td><strong style="color: #34d399;">&#8377; {{ p.total_rev_generated|default:0|floatformat:2|intcomma }}</strong></td>
+          <td>
+            <span class="badge {% if p.status == 'active' %}badge-success{% else %}badge-secondary{% endif %}">
+              {{ p.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-dim);">No product records found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if products.has_other_pages %}
+  <div class="pagination">
+    <span>Showing page {{ products.number }} of {{ products.paginator.num_pages }}</span>
+    <div class="pagination-links">
+      {% if products.has_previous %}
+        <a href="?page={{ products.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="page-btn">&laquo; Prev</a>
+      {% endif %}
+
+      <span class="page-btn active">{{ products.number }}</span>
+
+      {% if products.has_next %}
+        <a href="?page={{ products.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="page-btn">Next &raquo;</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Reports & Export Repository{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Executive Reports & Data Export</h1>
+    <p class="page-subtitle">On-demand tabular ledger generation for audit, finance, and business intelligence exports</p>
+  </div>
+</div>
+
+<!-- Generator Card -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <h3 class="card-title">Generate New Report</h3>
+  </div>
+  <form method="post" action="{% url 'reports:generate' %}" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+    {% csrf_token %}
+    <div style="flex: 1; min-width: 200px;">
+      <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-dim); margin-bottom: 0.4rem;">Report Subject</label>
+      <select name="report_type" class="select-custom" style="width: 100%;">
+        <option value="sales">Sales & Revenue Transactions</option>
+        <option value="customer">Customer RFM & Value Analysis</option>
+        <option value="inventory">Inventory Health & Stock Levels</option>
+        <option value="predictions">AI Repurchase Predictions</option>
+      </select>
+    </div>
+
+    <div style="width: 160px;">
+      <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-dim); margin-bottom: 0.4rem;">File Format</label>
+      <select name="format" class="select-custom" style="width: 100%;">
+        <option value="csv">CSV (Comma-Separated)</option>
+        <option value="excel">Excel (.xlsx Workbook)</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="height: 42px;">
+      <i data-lucide="file-plus"></i>
+      <span>Generate Document</span>
+    </button>
+  </form>
+</div>
+
+<!-- Generated Reports Archive -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Generated Exports Archive</h3>
+  </div>
+  <div class="table-wrapper">
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>Document Title</th>
+          <th>Subject Category</th>
+          <th>Format</th>
+          <th>Row Count</th>
+          <th>Created By</th>
+          <th>Timestamp</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reports %}
+        <tr>
+          <td><strong style="color: #fff;">{{ r.name }}</strong></td>
+          <td><span class="badge badge-secondary">{{ r.get_report_type_display }}</span></td>
+          <td>
+            <span class="badge {% if r.format == 'excel' %}badge-success{% else %}badge-info{% endif %}">
+              {{ r.format|upper }}
+            </span>
+          </td>
+          <td>{{ r.row_count|intcomma }} rows</td>
+          <td>{{ r.generated_by.username|default:"System" }}</td>
+          <td>{{ r.created_at|date:"M d, Y H:i" }}</td>
+          <td>
+            {% if r.file %}
+              <a href="{{ r.file.url }}" download class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem;">
+                <i data-lucide="download"></i>
+                <span>Download</span>
+              </a>
+            {% else %}
+              <span style="color: var(--text-dim); font-size: 0.8rem;">Ready</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-dim);">No reports generated yet. Use the form above to export data.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
