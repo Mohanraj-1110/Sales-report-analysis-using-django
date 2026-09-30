@@ -75,7 +75,7 @@
         <tr>
           <td><strong style="color: var(--primary);">#{{ order.order_id }}</strong></td>
           <td>
-            <a href="{% url 'customers:customer_detail' order.customer.id %}" style="color: #fff; text-decoration: underline dotted;">
+            <a href="{% url 'customers:customer_detail' order.customer.id %}" style="color: var(--text-main); font-weight: 600; text-decoration: underline dotted;">
               {{ order.customer.name|default:order.customer.customer_id }}
             </a>
           </td>

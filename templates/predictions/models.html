@@ -32,21 +32,21 @@
       <span class="badge badge-success">Active &bull; {{ active_repurchase.algorithm }}</span>
     </div>
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; text-align: center; margin: 1.25rem 0;">
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="background: var(--view-tint, #f0f9ff); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
         <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Accuracy</div>
-        <div style="font-size: 1.15rem; font-weight: 700; color: #fff;">{{ active_repurchase.metrics.accuracy|default:"0.98" }}</div>
+        <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">{{ active_repurchase.metrics.accuracy|default:"0.98" }}</div>
       </div>
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="background: var(--view-tint, #f0f9ff); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
         <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Precision</div>
-        <div style="font-size: 1.15rem; font-weight: 700; color: #fff;">{{ active_repurchase.metrics.precision|default:"0.99" }}</div>
+        <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">{{ active_repurchase.metrics.precision|default:"0.99" }}</div>
       </div>
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="background: var(--view-tint, #f0f9ff); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
         <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">Recall</div>
-        <div style="font-size: 1.15rem; font-weight: 700; color: #fff;">{{ active_repurchase.metrics.recall|default:"0.98" }}</div>
+        <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">{{ active_repurchase.metrics.recall|default:"0.98" }}</div>
       </div>
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="background: var(--view-tint, #f0f9ff); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
         <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">F1 Score</div>
-        <div style="font-size: 1.15rem; font-weight: 700; color: #34d399;">{{ active_repurchase.metrics.f1|default:"0.98" }}</div>
+        <div style="font-size: 1.15rem; font-weight: 700; color: #059669;">{{ active_repurchase.metrics.f1|default:"0.98" }}</div>
       </div>
     </div>
     <div style="font-size: 0.8rem; color: var(--text-dim);">
@@ -55,7 +55,7 @@
   </div>
 
   <!-- Forecaster -->
-  <div class="card" style="border-top: 3px solid #06b6d4;">
+  <div class="card" style="border-top: 3px solid #0284c7;">
     <div class="card-header">
       <div>
         <h3 class="card-title">Production Sales Forecaster</h3>
@@ -64,17 +64,17 @@
       <span class="badge badge-info">Active &bull; {{ active_forecaster.algorithm }}</span>
     </div>
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; text-align: center; margin: 1.25rem 0;">
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="background: var(--view-tint, #f0f9ff); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
         <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">MAE</div>
-        <div style="font-size: 1.15rem; font-weight: 700; color: #fff;">{{ active_forecaster.metrics.mae|default:"0.00" }}</div>
+        <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">{{ active_forecaster.metrics.mae|default:"0.00" }}</div>
       </div>
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="background: var(--view-tint, #f0f9ff); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
         <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">RMSE</div>
-        <div style="font-size: 1.15rem; font-weight: 700; color: #fff;">{{ active_forecaster.metrics.rmse|default:"0.00" }}</div>
+        <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">{{ active_forecaster.metrics.rmse|default:"0.00" }}</div>
       </div>
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="background: var(--view-tint, #f0f9ff); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
         <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;">R&sup2; Score</div>
-        <div style="font-size: 1.15rem; font-weight: 700; color: #22d3ee;">{{ active_forecaster.metrics.r2_score|default:"1.00" }}</div>
+        <div style="font-size: 1.15rem; font-weight: 700; color: #0284c7;">{{ active_forecaster.metrics.r2_score|default:"1.00" }}</div>
       </div>
     </div>
     <div style="font-size: 0.8rem; color: var(--text-dim);">
@@ -104,7 +104,7 @@
       <tbody>
         {% for m in models %}
         <tr>
-          <td><strong style="color: #fff;">{{ m.name }}</strong> v{{ m.version }}</td>
+          <td><strong style="color: var(--text-main);">{{ m.name }}</strong> v{{ m.version }}</td>
           <td>{{ m.get_model_type_display }}</td>
           <td><span class="badge badge-purple">{{ m.algorithm }}</span></td>
           <td>

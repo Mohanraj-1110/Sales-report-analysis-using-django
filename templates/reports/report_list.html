@@ -64,7 +64,7 @@
       <tbody>
         {% for r in reports %}
         <tr>
-          <td><strong style="color: #fff;">{{ r.name }}</strong></td>
+          <td><strong style="color: var(--text-main);">{{ r.name }}</strong></td>
           <td><span class="badge badge-secondary">{{ r.get_report_type_display }}</span></td>
           <td>
             <span class="badge {% if r.format == 'excel' %}badge-success{% else %}badge-info{% endif %}">

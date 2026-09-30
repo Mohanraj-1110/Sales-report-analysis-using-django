@@ -154,18 +154,18 @@
     </div>
     <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
       <!-- Active Classifier Box -->
-      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+      <div style="background: var(--view-tint, #eef2ff); border: 1px solid var(--view-border, #c7d2fe); border-radius: var(--radius-md); padding: 1rem;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
           <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <i data-lucide="target" style="color: #818cf8; width: 18px; height: 18px;"></i>
-            <span style="font-weight: 600; font-size: 0.9rem;">Customer Repurchase Classifier</span>
+            <i data-lucide="target" style="color: #4f46e5; width: 18px; height: 18px;"></i>
+            <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Customer Repurchase Classifier</span>
           </div>
           <span class="badge badge-success">Active &bull; {{ active_classifier.algorithm|default:"Logistic Regression" }}</span>
         </div>
         <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-          Accuracy: <strong style="color: #fff;">{{ active_classifier.metrics.accuracy|default:"0.95" }}</strong> &bull;
-          F1 Score: <strong style="color: #fff;">{{ active_classifier.metrics.f1|default:"0.96" }}</strong> &bull;
-          ROC-AUC: <strong style="color: #fff;">{{ active_classifier.metrics.roc_auc|default:"0.96" }}</strong>
+          Accuracy: <strong style="color: var(--text-main);">{{ active_classifier.metrics.accuracy|default:"0.95" }}</strong> &bull;
+          F1 Score: <strong style="color: var(--text-main);">{{ active_classifier.metrics.f1|default:"0.96" }}</strong> &bull;
+          ROC-AUC: <strong style="color: var(--text-main);">{{ active_classifier.metrics.roc_auc|default:"0.96" }}</strong>
         </p>
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <span style="font-size: 0.78rem; color: var(--text-dim);">Trained on {{ active_classifier.training_sample_count|default:"372" }} customer records</span>
@@ -174,17 +174,17 @@
       </div>
 
       <!-- Active Forecaster Box -->
-      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-md); padding: 1rem;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
           <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <i data-lucide="trending-up" style="color: #22d3ee; width: 18px; height: 18px;"></i>
-            <span style="font-weight: 600; font-size: 0.9rem;">Sales Forecasting Regressor</span>
+            <i data-lucide="trending-up" style="color: #059669; width: 18px; height: 18px;"></i>
+            <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Sales Forecasting Regressor</span>
           </div>
           <span class="badge badge-info">Ridge Regression</span>
         </div>
         <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-          Horizon: <strong style="color: #fff;">30-Day Multi-Step Projection</strong> &bull;
-          R&sup2; Fit: <strong style="color: #fff;">{{ active_forecaster.metrics.r2_score|default:"0.88" }}</strong>
+          Horizon: <strong style="color: var(--text-main);">30-Day Multi-Step Projection</strong> &bull;
+          R&sup2; Fit: <strong style="color: var(--text-main);">{{ active_forecaster.metrics.r2_score|default:"0.88" }}</strong>
         </p>
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <span style="font-size: 0.78rem; color: var(--text-dim);">Projected 30-day confidence intervals</span>
@@ -297,12 +297,12 @@
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { grid: { color: 'rgba(255, 255, 255, 0.04)' } },
+        x: { grid: { color: 'rgba(0, 0, 0, 0.05)' } },
         y: {
           type: 'linear',
           display: true,
           position: 'left',
-          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          grid: { color: 'rgba(0, 0, 0, 0.05)' },
           ticks: { callback: (val) => '₹' + Number(val).toLocaleString() }
         },
         y1: {
@@ -340,9 +340,10 @@
       datasets: [{
         data: catRevenues,
         backgroundColor: [
-          '#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#64748b'
+          '#4f46e5', '#7c3aed', '#0891b2', '#059669', '#d97706', '#e11d48', '#2563eb', '#64748b'
         ],
-        borderWidth: 0,
+        borderWidth: 2,
+        borderColor: '#ffffff',
         hoverOffset: 6
       }]
     },
@@ -374,12 +375,12 @@
         label: 'Customers',
         data: rfmCounts,
         backgroundColor: [
-          'rgba(16, 185, 129, 0.7)',
-          'rgba(59, 130, 246, 0.7)',
-          'rgba(139, 92, 246, 0.7)',
-          'rgba(245, 158, 11, 0.7)',
-          'rgba(239, 68, 68, 0.7)',
-          'rgba(100, 116, 139, 0.7)'
+          'rgba(5, 150, 105, 0.85)',
+          'rgba(37, 99, 235, 0.85)',
+          'rgba(124, 58, 237, 0.85)',
+          'rgba(217, 119, 6, 0.85)',
+          'rgba(220, 38, 38, 0.85)',
+          'rgba(100, 116, 139, 0.85)'
         ],
         borderRadius: 6
       }]
@@ -390,7 +391,7 @@
       plugins: { legend: { display: false } },
       scales: {
         x: { grid: { display: false } },
-        y: { grid: { color: 'rgba(255, 255, 255, 0.04)' } }
+        y: { grid: { color: 'rgba(0, 0, 0, 0.05)' } }
       }
     }
   });

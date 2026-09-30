@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="light-theme view-{{ request.resolver_match.app_name }} view-{{ request.resolver_match.app_name }}-{{ request.resolver_match.url_name }}">
   <div class="app-layout">
     <!-- Sidebar Navigation -->
     <aside class="app-sidebar" id="appSidebar">
@@ -31,67 +31,67 @@
 
       <nav class="sidebar-nav">
         <div class="nav-section-title">Core Cockpit</div>
-        <a href="{% url 'dashboard:index' %}" class="nav-item {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
-          <i data-lucide="layout-dashboard"></i>
+        <a href="{% url 'dashboard:index' %}" class="nav-item nav-item-dashboard {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+          <i data-lucide="layout-dashboard" class="nav-icon" style="color: var(--c-dashboard);"></i>
           <span>Dashboard</span>
         </a>
-        <a href="{% url 'analytics:sales' %}" class="nav-item {% if request.resolver_match.app_name == 'analytics' and request.resolver_match.url_name == 'sales' %}active{% endif %}">
-          <i data-lucide="trending-up"></i>
+        <a href="{% url 'analytics:sales' %}" class="nav-item nav-item-analytics-sales {% if request.resolver_match.app_name == 'analytics' and request.resolver_match.url_name == 'sales' %}active{% endif %}">
+          <i data-lucide="trending-up" class="nav-icon" style="color: var(--c-sales-analytics);"></i>
           <span>Sales Analytics</span>
         </a>
-        <a href="{% url 'analytics:categories' %}" class="nav-item {% if request.resolver_match.app_name == 'analytics' and request.resolver_match.url_name == 'categories' %}active{% endif %}">
-          <i data-lucide="pie-chart"></i>
+        <a href="{% url 'analytics:categories' %}" class="nav-item nav-item-analytics-categories {% if request.resolver_match.app_name == 'analytics' and request.resolver_match.url_name == 'categories' %}active{% endif %}">
+          <i data-lucide="pie-chart" class="nav-icon" style="color: var(--c-categories);"></i>
           <span>Category Share</span>
         </a>
-        <a href="{% url 'analytics:geography' %}" class="nav-item {% if request.resolver_match.app_name == 'analytics' and request.resolver_match.url_name == 'geography' %}active{% endif %}">
-          <i data-lucide="map-pin"></i>
+        <a href="{% url 'analytics:geography' %}" class="nav-item nav-item-analytics-geography {% if request.resolver_match.app_name == 'analytics' and request.resolver_match.url_name == 'geography' %}active{% endif %}">
+          <i data-lucide="map-pin" class="nav-icon" style="color: var(--c-geography);"></i>
           <span>Geography</span>
         </a>
 
         <div class="nav-section-title">E-Commerce Ops</div>
-        <a href="{% url 'sales:order_list' %}" class="nav-item {% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
-          <i data-lucide="shopping-bag"></i>
+        <a href="{% url 'sales:order_list' %}" class="nav-item nav-item-sales {% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
+          <i data-lucide="shopping-bag" class="nav-icon" style="color: var(--c-orders);"></i>
           <span>Orders & Revenue</span>
         </a>
-        <a href="{% url 'customers:customer_list' %}" class="nav-item {% if request.resolver_match.app_name == 'customers' and request.resolver_match.url_name != 'rfm' %}active{% endif %}">
-          <i data-lucide="users"></i>
+        <a href="{% url 'customers:customer_list' %}" class="nav-item nav-item-customers {% if request.resolver_match.app_name == 'customers' and request.resolver_match.url_name != 'rfm' %}active{% endif %}">
+          <i data-lucide="users" class="nav-icon" style="color: var(--c-customers);"></i>
           <span>Customer Directory</span>
         </a>
-        <a href="{% url 'customers:rfm' %}" class="nav-item {% if request.resolver_match.app_name == 'customers' and request.resolver_match.url_name == 'rfm' %}active{% endif %}">
-          <i data-lucide="target"></i>
+        <a href="{% url 'customers:rfm' %}" class="nav-item nav-item-rfm {% if request.resolver_match.app_name == 'customers' and request.resolver_match.url_name == 'rfm' %}active{% endif %}">
+          <i data-lucide="target" class="nav-icon" style="color: var(--c-rfm);"></i>
           <span>RFM Segmentation</span>
         </a>
-        <a href="{% url 'products:product_list' %}" class="nav-item {% if request.resolver_match.app_name == 'products' %}active{% endif %}">
-          <i data-lucide="boxes"></i>
+        <a href="{% url 'products:product_list' %}" class="nav-item nav-item-products {% if request.resolver_match.app_name == 'products' %}active{% endif %}">
+          <i data-lucide="boxes" class="nav-icon" style="color: var(--c-products);"></i>
           <span>Products & SKU</span>
         </a>
 
         <div class="nav-section-title">Predictive AI & ML</div>
-        <a href="{% url 'predictions:repurchase' %}" class="nav-item {% if request.resolver_match.app_name == 'predictions' and request.resolver_match.url_name == 'repurchase' %}active{% endif %}">
-          <i data-lucide="sparkles"></i>
+        <a href="{% url 'predictions:repurchase' %}" class="nav-item nav-item-repurchase {% if request.resolver_match.app_name == 'predictions' and request.resolver_match.url_name == 'repurchase' %}active{% endif %}">
+          <i data-lucide="sparkles" class="nav-icon" style="color: var(--c-repurchase);"></i>
           <span>Repurchase Propensity</span>
         </a>
-        <a href="{% url 'forecasting:forecast' %}" class="nav-item {% if request.resolver_match.app_name == 'forecasting' %}active{% endif %}">
-          <i data-lucide="line-chart"></i>
+        <a href="{% url 'forecasting:forecast' %}" class="nav-item nav-item-forecasting {% if request.resolver_match.app_name == 'forecasting' %}active{% endif %}">
+          <i data-lucide="line-chart" class="nav-icon" style="color: var(--c-forecasting);"></i>
           <span>Sales Forecast</span>
         </a>
-        <a href="{% url 'predictions:models' %}" class="nav-item {% if request.resolver_match.app_name == 'predictions' and request.resolver_match.url_name == 'models' %}active{% endif %}">
-          <i data-lucide="cpu"></i>
+        <a href="{% url 'predictions:models' %}" class="nav-item nav-item-models {% if request.resolver_match.app_name == 'predictions' and request.resolver_match.url_name == 'models' %}active{% endif %}">
+          <i data-lucide="cpu" class="nav-icon" style="color: var(--c-models);"></i>
           <span>ML Model Registry</span>
         </a>
 
         <div class="nav-section-title">Data & Compliance</div>
-        <a href="{% url 'datasets:dataset_list' %}" class="nav-item {% if request.resolver_match.app_name == 'datasets' %}active{% endif %}">
-          <i data-lucide="database"></i>
+        <a href="{% url 'datasets:dataset_list' %}" class="nav-item nav-item-datasets {% if request.resolver_match.app_name == 'datasets' %}active{% endif %}">
+          <i data-lucide="database" class="nav-icon" style="color: var(--c-datasets);"></i>
           <span>Datasets & ETL</span>
         </a>
-        <a href="{% url 'reports:report_list' %}" class="nav-item {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
-          <i data-lucide="file-spreadsheet"></i>
+        <a href="{% url 'reports:report_list' %}" class="nav-item nav-item-reports {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
+          <i data-lucide="file-spreadsheet" class="nav-icon" style="color: var(--c-reports);"></i>
           <span>Reports & Export</span>
         </a>
         {% if is_admin %}
-        <a href="{% url 'accounts:audit_logs' %}" class="nav-item {% if request.resolver_match.app_name == 'accounts' and request.resolver_match.url_name == 'audit_logs' %}active{% endif %}">
-          <i data-lucide="shield-check"></i>
+        <a href="{% url 'accounts:audit_logs' %}" class="nav-item nav-item-audit {% if request.resolver_match.app_name == 'accounts' and request.resolver_match.url_name == 'audit_logs' %}active{% endif %}">
+          <i data-lucide="shield-check" class="nav-icon" style="color: var(--c-audit);"></i>
           <span>Audit Trail</span>
         </a>
         {% endif %}
@@ -113,14 +113,44 @@
     <div class="app-main">
       <!-- Top Navigation Header -->
       <header class="app-header">
-        <div class="header-search">
-          <i data-lucide="search"></i>
-          <input type="text" placeholder="Search orders, customers, SKUs..." id="globalSearchInput">
+        <div class="header-left">
+          <div class="header-search">
+            <i data-lucide="search"></i>
+            <input type="text" placeholder="Search orders, customers, SKUs..." id="globalSearchInput">
+          </div>
+
+          <!-- Active View Badge with Signature Color Indicator -->
+          <div class="active-view-indicator">
+            <span class="active-view-dot"></span>
+            <span class="active-view-name">
+              {% if request.resolver_match.app_name == 'dashboard' %}Dashboard Cockpit &bull; Indigo
+              {% elif request.resolver_match.url_name == 'sales' %}Sales Analytics &bull; Emerald
+              {% elif request.resolver_match.url_name == 'categories' %}Category Share &bull; Violet
+              {% elif request.resolver_match.url_name == 'geography' %}Geography &bull; Cyan
+              {% elif request.resolver_match.url_name == 'order_list' %}Orders & Revenue &bull; Rose
+              {% elif request.resolver_match.url_name == 'order_detail' %}Order Details &bull; Coral
+              {% elif request.resolver_match.url_name == 'customer_list' %}Customer Cohorts &bull; Amber
+              {% elif request.resolver_match.url_name == 'rfm' %}RFM Matrix &bull; Teal
+              {% elif request.resolver_match.url_name == 'customer_detail' %}Customer 360 &bull; Lagoon
+              {% elif request.resolver_match.app_name == 'products' %}Products & SKU &bull; Sapphire
+              {% elif request.resolver_match.url_name == 'repurchase' %}Repurchase AI &bull; Magenta
+              {% elif request.resolver_match.app_name == 'forecasting' %}Demand Forecast &bull; Orange
+              {% elif request.resolver_match.url_name == 'models' %}ML Registry &bull; Azure
+              {% elif request.resolver_match.url_name == 'dataset_list' %}Datasets & ETL &bull; Lime
+              {% elif request.resolver_match.url_name == 'dataset_detail' %}Dataset Inspection &bull; Cerulean
+              {% elif request.resolver_match.url_name == 'upload' %}Data Importer &bull; Orchid
+              {% elif request.resolver_match.app_name == 'reports' %}Reports & Export &bull; Ruby
+              {% elif request.resolver_match.url_name == 'audit_logs' %}Audit Trail &bull; Forest Jade
+              {% elif request.resolver_match.url_name == 'profile' %}User Profile &bull; Bronze
+              {% else %}Executive Cockpit &bull; Light Theme
+              {% endif %}
+            </span>
+          </div>
         </div>
 
         <div class="header-actions">
           <div style="font-size: 0.8rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.4rem;">
-            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"></span>
             <span>ML Models Online</span>
           </div>
 
@@ -169,10 +199,10 @@
       el.style.width = el.getAttribute('data-width');
     });
 
-    // Chart.js Theme Defaults for Dark Mode
+    // Chart.js Theme Defaults for Light Mode
     if (window.Chart) {
-      Chart.defaults.color = '#94a3b8';
-      Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)';
+      Chart.defaults.color = '#475569';
+      Chart.defaults.borderColor = 'rgba(0, 0, 0, 0.06)';
       Chart.defaults.font.family = "'Inter', sans-serif";
     }
   </script>

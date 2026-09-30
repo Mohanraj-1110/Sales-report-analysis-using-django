@@ -42,21 +42,21 @@
     <span class="badge badge-success">Completed</span>
   </div>
   <div class="kpi-grid" style="margin-bottom: 0;">
-    <div style="background: rgba(15, 23, 42, 0.5); padding: 1rem; border-radius: var(--radius-sm);">
+    <div style="background: var(--view-tint, #f0f9ff); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
       <div style="font-size: 0.75rem; color: var(--text-dim);">Orders Ingested</div>
-      <div style="font-size: 1.4rem; font-weight: 700; color: #34d399;">{{ dataset.cleaning_summary.orders_imported|intcomma }}</div>
+      <div style="font-size: 1.4rem; font-weight: 700; color: #059669;">{{ dataset.cleaning_summary.orders_imported|intcomma }}</div>
     </div>
-    <div style="background: rgba(15, 23, 42, 0.5); padding: 1rem; border-radius: var(--radius-sm);">
+    <div style="background: var(--view-tint, #f0f9ff); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
       <div style="font-size: 0.75rem; color: var(--text-dim);">New Customers Created</div>
-      <div style="font-size: 1.4rem; font-weight: 700; color: #fff;">{{ dataset.cleaning_summary.new_customers_created|intcomma }}</div>
+      <div style="font-size: 1.4rem; font-weight: 700; color: var(--text-main);">{{ dataset.cleaning_summary.new_customers_created|intcomma }}</div>
     </div>
-    <div style="background: rgba(15, 23, 42, 0.5); padding: 1rem; border-radius: var(--radius-sm);">
+    <div style="background: var(--view-tint, #f0f9ff); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
       <div style="font-size: 0.75rem; color: var(--text-dim);">SKUs / Products Added</div>
-      <div style="font-size: 1.4rem; font-weight: 700; color: #fff;">{{ dataset.cleaning_summary.new_products_created|intcomma }}</div>
+      <div style="font-size: 1.4rem; font-weight: 700; color: var(--text-main);">{{ dataset.cleaning_summary.new_products_created|intcomma }}</div>
     </div>
-    <div style="background: rgba(15, 23, 42, 0.5); padding: 1rem; border-radius: var(--radius-sm);">
+    <div style="background: var(--view-tint, #f0f9ff); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
       <div style="font-size: 0.75rem; color: var(--text-dim);">Duplicates Filtered</div>
-      <div style="font-size: 1.4rem; font-weight: 700; color: #f59e0b;">{{ dataset.cleaning_summary.duplicates_removed|intcomma }}</div>
+      <div style="font-size: 1.4rem; font-weight: 700; color: #d97706;">{{ dataset.cleaning_summary.duplicates_removed|intcomma }}</div>
     </div>
   </div>
 </div>
@@ -81,10 +81,10 @@
         <tbody>
           {% for field, source_col in dataset.column_mapping.items %}
           <tr>
-            <td><strong style="color: #fff;">{{ field }}</strong></td>
+            <td><strong style="color: var(--text-main);">{{ field }}</strong></td>
             <td>
               {% if source_col %}
-                <span style="color: #818cf8; font-family: var(--font-mono); font-size: 0.8rem;">{{ source_col }}</span>
+                <span style="color: var(--primary); font-family: var(--font-mono); font-size: 0.8rem;">{{ source_col }}</span>
               {% else %}
                 <span style="color: var(--text-dim);">&mdash;</span>
               {% endif %}
@@ -120,7 +120,7 @@
         <tbody>
           {% for col, stats in dataset.validation_summary.items %}
           <tr>
-            <td><strong style="color: #fff;">{{ col }}</strong></td>
+            <td><strong style="color: var(--text-main);">{{ col }}</strong></td>
             <td>{{ stats.count }} rows</td>
             <td>
               <span class="badge {% if stats.pct > 30 %}badge-danger{% elif stats.pct > 10 %}badge-warning{% else %}badge-info{% endif %}">

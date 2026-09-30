@@ -37,12 +37,12 @@
           {% for item in items %}
           <tr>
             <td>
-              <strong style="color: #fff;">{{ item.product_name|default:item.sku }}</strong>
+              <strong style="color: var(--text-main);">{{ item.product_name|default:item.sku }}</strong>
               <div style="font-size: 0.75rem; color: var(--text-dim);">SKU: {{ item.sku }}</div>
             </td>
             <td>&#8377; {{ item.unit_price|floatformat:2|intcomma }}</td>
             <td>{{ item.quantity }} pcs</td>
-            <td><strong style="color: #34d399;">&#8377; {{ item.total_amount|floatformat:2|intcomma }}</strong></td>
+            <td><strong style="color: #059669;">&#8377; {{ item.total_amount|floatformat:2|intcomma }}</strong></td>
           </tr>
           {% endfor %}
         </tbody>
@@ -65,8 +65,8 @@
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
       <div>
         <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Customer Account</span>
-        <div style="font-weight: 600; color: #fff; margin-top: 0.25rem;">
-          <a href="{% url 'customers:customer_detail' order.customer.id %}" style="color: #818cf8; text-decoration: underline;">
+        <div style="font-weight: 600; color: var(--text-main); margin-top: 0.25rem;">
+          <a href="{% url 'customers:customer_detail' order.customer.id %}" style="color: var(--primary); text-decoration: underline;">
             {{ order.customer.name|default:order.customer.customer_id }}
           </a>
         </div>
@@ -75,7 +75,7 @@
 
       <div>
         <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Delivery Destination</span>
-        <div style="color: #fff; font-size: 0.88rem; margin-top: 0.25rem;">
+        <div style="color: var(--text-main); font-size: 0.88rem; margin-top: 0.25rem;">
           {{ order.shipping_city|default:"City not provided" }}, {{ order.shipping_state }}
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted);">Postal Code: {{ order.shipping_postal_code|default:"-" }}</div>
@@ -84,7 +84,7 @@
 
       <div>
         <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Logistics & Routing</span>
-        <div style="color: #fff; font-size: 0.88rem; margin-top: 0.25rem;">
+        <div style="color: var(--text-main); font-size: 0.88rem; margin-top: 0.25rem;">
           Fulfilment: <strong>{{ order.fulfilment|default:"Direct" }}</strong>
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted);">Channel: {{ order.sales_channel }}</div>

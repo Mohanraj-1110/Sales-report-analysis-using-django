@@ -26,7 +26,7 @@
   {% for s in segment_stats %}
   <div class="card {% if s.segment == 'Champions' %}card-segment-champions{% elif s.segment == 'Loyal Customers' %}card-segment-loyal{% elif s.segment == 'Potential Loyalists' %}card-segment-potential{% elif s.segment == 'At Risk' %}card-segment-risk{% else %}card-segment-lost{% endif %}">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-      <h3 style="font-size: 1.05rem; font-weight: 600; color: #fff;">{{ s.segment }}</h3>
+      <h3 style="font-size: 1.05rem; font-weight: 600; color: var(--text-main);">{{ s.segment }}</h3>
       <span class="badge badge-secondary">{{ s.count|intcomma }} buyers</span>
     </div>
     <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">
@@ -66,7 +66,7 @@
       <li><strong>Monetary (M):</strong> Cumulative gross currency spent. Top spenders rank in the highest quintile.</li>
     </ul>
     <p>
-      Total active customers evaluated in this system: <strong style="color: #fff;">{{ total_customers|intcomma }}</strong>
+      Total active customers evaluated in this system: <strong style="color: var(--text-main);">{{ total_customers|intcomma }}</strong>
     </p>
   </div>
 </div>

@@ -122,8 +122,8 @@
         {
           label: 'Revenue (INR)',
           data: revs,
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99, 102, 241, 0.15)',
+          borderColor: '#059669',
+          backgroundColor: 'rgba(5, 150, 105, 0.12)',
           fill: true,
           tension: 0.3,
           borderWidth: 3,
@@ -132,7 +132,7 @@
         {
           label: 'Daily Orders',
           data: ords,
-          borderColor: '#06b6d4',
+          borderColor: '#0891b2',
           borderWidth: 2,
           borderDash: [5, 5],
           fill: false,
@@ -145,9 +145,9 @@
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x: { grid: { color: 'rgba(255, 255, 255, 0.04)' } },
+        x: { grid: { color: 'rgba(0, 0, 0, 0.05)' } },
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          grid: { color: 'rgba(0, 0, 0, 0.05)' },
           ticks: { callback: (v) => '₹' + Number(v).toLocaleString() }
         },
         y1: { position: 'right', grid: { drawOnChartArea: false } }

@@ -75,7 +75,7 @@
         {% for p in predictions %}
         <tr>
           <td>
-            <a href="{% url 'customers:customer_detail' p.customer.id %}" style="color: #fff; font-weight: 600;">
+            <a href="{% url 'customers:customer_detail' p.customer.id %}" style="color: var(--primary); font-weight: 600;">
               {{ p.customer.name|default:p.customer.customer_id }}
             </a>
             <div style="font-size: 0.72rem; color: var(--text-dim);">{{ p.customer.customer_id }}</div>

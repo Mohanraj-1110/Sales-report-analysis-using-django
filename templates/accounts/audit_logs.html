@@ -28,7 +28,7 @@
           <td style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim);">
             {{ log.timestamp|date:"Y-m-d H:i:s" }}
           </td>
-          <td><strong style="color: #fff;">{{ log.user.username|default:"System Anonymous" }}</strong></td>
+          <td><strong style="color: var(--text-main);">{{ log.user.username|default:"System Anonymous" }}</strong></td>
           <td>
             <span class="badge {% if 'Login' in log.action %}badge-info{% elif 'Import' in log.action %}badge-success{% else %}badge-secondary{% endif %}">
               {{ log.action }}

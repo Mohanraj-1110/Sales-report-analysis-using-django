@@ -68,7 +68,7 @@
         {% for c in customers %}
         <tr>
           <td>
-            <a href="{% url 'customers:customer_detail' c.id %}" style="color: #fff; font-weight: 600;">
+            <a href="{% url 'customers:customer_detail' c.id %}" style="color: var(--primary); font-weight: 600;">
               {{ c.name|default:c.customer_id }}
             </a>
             <div style="font-size: 0.72rem; color: var(--text-dim);">{{ c.customer_id }}</div>
@@ -81,7 +81,7 @@
           </td>
           <td><strong>{{ c.frequency_orders }}</strong> orders</td>
           <td>{{ c.recency_days }} days ago</td>
-          <td><strong style="color: #34d399;">&#8377; {{ c.monetary_total|floatformat:2|intcomma }}</strong></td>
+          <td><strong style="color: #059669;">&#8377; {{ c.monetary_total|floatformat:2|intcomma }}</strong></td>
           <td>&#8377; {{ c.average_order_value|floatformat:2|intcomma }}</td>
           <td>
             <a href="{% url 'customers:customer_detail' c.id %}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem;">Profile</a>

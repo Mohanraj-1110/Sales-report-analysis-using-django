@@ -18,13 +18,13 @@
     {% csrf_token %}
     
     <div style="margin-bottom: 1.5rem;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: #fff;">Dataset Display Title</label>
+      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Dataset Display Title</label>
       <input type="text" name="name" placeholder="e.g. Amazon Q2 Sales Report" class="input-custom" style="width: 100%;" required>
     </div>
 
     <div style="margin-bottom: 2rem;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: #fff;">Select File (.CSV or .XLSX)</label>
-      <div style="border: 2px dashed var(--border-subtle); border-radius: var(--radius-lg); padding: 2.5rem; text-align: center; background: rgba(15, 23, 42, 0.4);">
+      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">Select File (.CSV or .XLSX)</label>
+      <div style="border: 2px dashed var(--border-subtle); border-radius: var(--radius-lg); padding: 2.5rem; text-align: center; background: #f8fafc;">
         <i data-lucide="file-up" style="width: 42px; height: 42px; color: var(--primary); margin-bottom: 0.75rem;"></i>
         <p style="font-size: 0.88rem; color: var(--text-main); font-weight: 500; margin-bottom: 0.25rem;">Choose a spreadsheet file from your local disk</p>
         <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.25rem;">Supported formats: CSV, XLSX, XLS (Max 100MB)</p>

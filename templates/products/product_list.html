@@ -61,7 +61,7 @@
         <tr>
           <td><strong style="color: var(--primary);">{{ p.sku }}</strong></td>
           <td>
-            <div style="font-weight: 500; color: #fff;">{{ p.name }}</div>
+            <div style="font-weight: 500; color: var(--text-main);">{{ p.name }}</div>
             {% if p.style %}
               <div style="font-size: 0.75rem; color: var(--text-dim);">Style: {{ p.style }}</div>
             {% endif %}
@@ -70,7 +70,7 @@
           <td>&#8377; {{ p.unit_price|floatformat:2|intcomma }}</td>
           <td>&#8377; {{ p.cost_price|floatformat:2|intcomma }}</td>
           <td><strong>{{ p.total_units_sold|default:0|intcomma }}</strong> pcs</td>
-          <td><strong style="color: #34d399;">&#8377; {{ p.total_rev_generated|default:0|floatformat:2|intcomma }}</strong></td>
+          <td><strong style="color: #059669;">&#8377; {{ p.total_rev_generated|default:0|floatformat:2|intcomma }}</strong></td>
           <td>
             <span class="badge {% if p.status == 'active' %}badge-success{% else %}badge-secondary{% endif %}">
               {{ p.get_status_display }}

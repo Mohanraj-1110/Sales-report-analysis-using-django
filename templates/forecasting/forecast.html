@@ -28,21 +28,21 @@
 
 <!-- Projection Highlight Metrics -->
 <div class="kpi-grid">
-  <div class="kpi-card" style="border-top: 3px solid #06b6d4;">
+  <div class="kpi-card" style="border-top: 3px solid #ea580c;">
     <span class="kpi-label">Projected Horizon Revenue</span>
-    <div class="kpi-value" style="color: #22d3ee;">&#8377; {{ total_projected|floatformat:2|intcomma }}</div>
+    <div class="kpi-value" style="color: #ea580c;">&#8377; {{ total_projected|floatformat:2|intcomma }}</div>
     <div class="kpi-trend"><span style="color: var(--text-dim);">Cumulative expected {{ horizon }}-day inflow</span></div>
   </div>
 
   <div class="kpi-card">
     <span class="kpi-label">Active ML Regressor</span>
-    <div class="kpi-value" style="font-size: 1.35rem; color: #fff;">{{ active_model.algorithm|default:"Ridge Time-Series" }}</div>
+    <div class="kpi-value" style="font-size: 1.35rem; color: var(--text-main);">{{ active_model.algorithm|default:"Ridge Time-Series" }}</div>
     <div class="kpi-trend"><span style="color: var(--text-dim);">L2 regularized with calendar features</span></div>
   </div>
 
   <div class="kpi-card">
     <span class="kpi-label">Regression Goodness of Fit</span>
-    <div class="kpi-value" style="color: #34d399;">{{ active_model.metrics.r2_score|default:"1.00" }}</div>
+    <div class="kpi-value" style="color: #059669;">{{ active_model.metrics.r2_score|default:"1.00" }}</div>
     <div class="kpi-trend"><span style="color: var(--text-dim);">R&sup2; coefficient of determination</span></div>
   </div>
 </div>
@@ -80,8 +80,8 @@
       <tbody>
         {% for f in forecasts %}
         <tr>
-          <td><strong style="color: #fff;">{{ f.forecast_date|date:"l, M d, Y" }}</strong></td>
-          <td><strong style="color: #22d3ee;">&#8377; {{ f.predicted_revenue|floatformat:2|intcomma }}</strong></td>
+          <td><strong style="color: var(--text-main);">{{ f.forecast_date|date:"l, M d, Y" }}</strong></td>
+          <td><strong style="color: #ea580c;">&#8377; {{ f.predicted_revenue|floatformat:2|intcomma }}</strong></td>
           <td>&#8377; {{ f.lower_bound|floatformat:2|intcomma }}</td>
           <td>&#8377; {{ f.upper_bound|floatformat:2|intcomma }}</td>
           <td><span class="badge badge-secondary">{{ f.model_record.algorithm|default:"Ridge Regression" }}</span></td>
@@ -131,8 +131,8 @@
         {
           label: 'Historical Actual Revenue',
           data: historicalSeries,
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          borderColor: '#4f46e5',
+          backgroundColor: 'rgba(79, 70, 229, 0.08)',
           fill: true,
           tension: 0.25,
           borderWidth: 2.5
@@ -140,9 +140,9 @@
         {
           label: 'ML Forecast Projection',
           data: projectedSeries,
-          borderColor: '#06b6d4',
+          borderColor: '#ea580c',
           borderDash: [5, 5],
-          backgroundColor: 'rgba(6, 182, 212, 0.15)',
+          backgroundColor: 'rgba(234, 88, 12, 0.12)',
           fill: true,
           tension: 0.25,
           borderWidth: 2.5,
@@ -154,9 +154,9 @@
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x: { grid: { color: 'rgba(255, 255, 255, 0.04)' } },
+        x: { grid: { color: 'rgba(0, 0, 0, 0.05)' } },
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.04)' },
+          grid: { color: 'rgba(0, 0, 0, 0.05)' },
           ticks: { callback: (v) => '₹' + Number(v).toLocaleString() }
         }
       },

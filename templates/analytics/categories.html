@@ -79,7 +79,7 @@
   const catLabels = JSON.parse(document.getElementById('catLabelsData').textContent || '[]');
   const catRevs = JSON.parse(document.getElementById('catRevsData').textContent || '[]');
   const catUnits = JSON.parse(document.getElementById('catUnitsData').textContent || '[]');
-  const colors = ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#64748b'];
+  const colors = ['#7c3aed', '#059669', '#0891b2', '#e11d48', '#d97706', '#2563eb', '#c026d3', '#65a30d'];
 
   new Chart(document.getElementById('categoryDonut').getContext('2d'), {
     type: 'pie',
@@ -88,7 +88,8 @@
       datasets: [{
         data: catRevs,
         backgroundColor: colors,
-        borderWidth: 0
+        borderWidth: 2,
+        borderColor: '#ffffff'
       }]
     },
     options: {
@@ -108,8 +109,8 @@
       datasets: [{
         label: 'Units Sold',
         data: catUnits,
-        backgroundColor: '#8b5cf6',
-        borderRadius: 4
+        backgroundColor: '#7c3aed',
+        borderRadius: 6
       }]
     },
     options: {
@@ -118,7 +119,7 @@
       plugins: { legend: { display: false } },
       scales: {
         x: { grid: { display: false } },
-        y: { grid: { color: 'rgba(255, 255, 255, 0.04)' } }
+        y: { grid: { color: 'rgba(0, 0, 0, 0.05)' } }
       }
     }
   });

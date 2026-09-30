@@ -35,11 +35,11 @@
       <tbody>
         {% for d in datasets %}
         <tr>
-          <td><strong style="color: #fff;">{{ d.name }}</strong></td>
+          <td><strong style="color: var(--text-main);">{{ d.name }}</strong></td>
           <td><span class="badge badge-secondary">{{ d.file_type }}</span></td>
           <td>{{ d.file_size|filesizeformat }}</td>
           <td>{{ d.total_rows|intcomma }}</td>
-          <td><strong style="color: #34d399;">{{ d.valid_rows|intcomma }}</strong></td>
+          <td><strong style="color: #059669;">{{ d.valid_rows|intcomma }}</strong></td>
           <td>
             <span class="badge {% if d.status == 'Imported' %}badge-success{% elif d.status == 'Validated' %}badge-info{% elif d.status == 'Failed' %}badge-danger{% else %}badge-warning{% endif %}">
               {{ d.status }}

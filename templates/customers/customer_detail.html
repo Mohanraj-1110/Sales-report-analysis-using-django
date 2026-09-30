@@ -66,7 +66,7 @@
         <div class="propensity-fill {% if prediction.probability > 60 %}propensity-high{% elif prediction.probability > 35 %}propensity-med{% else %}propensity-low{% endif %}" data-width="{{ prediction.probability }}%"></div>
       </div>
       <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem;">
-        Risk Level: <strong style="color: #fff;">{{ prediction.risk_segment }}</strong> &bull; Model: Scikit-Learn Classifier
+        Risk Level: <strong style="color: var(--text-main);">{{ prediction.risk_segment }}</strong> &bull; Model: Scikit-Learn Classifier
       </p>
     </div>
   </div>
